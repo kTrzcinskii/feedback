@@ -159,10 +159,10 @@ Horizontal movement is controlled using left (A/left arrow) and right(D/ right a
 
 Initial rules:
 
-- The player accelerates towards a fixed horizontal movement speed.
-- Releasing the movement button stops ordinary horizontal movement within one physics tick.
+- Pressing a horizontal movement key immediately sets the player's ordinary horizontal velocity to the configured movement speed in the corresponding direction.
+- Releasing the movement key immediately stops ordinary horizontal movement.
 - Pressing the opposite direction immediately changes the direction of ordinary horizontal movement.
-- Ordinary movement does not introduce additional horizontal inertia.
+- Ordinary horizontal movement does not introduce additional inertia or acceleration.
 
 An important exception is momentum obtained through parrying.
 
