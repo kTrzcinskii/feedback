@@ -244,15 +244,25 @@ For a surface with outward unit normal `n`, a conventional velocity reflection c
 
 Where `e` is the coefficient of restitution. We can have different type of surfaces with different values of `e` giving us more content for level design.
 
-### 3.6. Collision with hazards
+### 3.6. Collision with hazards and damage handling
 
-The following rules apply to lethal collisions:
+#### Ordinary damage
 
-- Contact with an un-parried enemy attack decreases player hp.
-- Contact with an enemy body decreases player hp unless the corresponding physical attack is successfully parried.
-- Contact with an enemy projectile decreases player hp unless it is successfully parried.
+The following interactions decrease player HP:
+
+- Contact with an un-parried enemy attack.
+- Contact with an enemy body.
+- Contact with an enemy projectile that has not been successfully parried.
 - Contact with spikes or other lethal environmental hazards decreases player hp.
 - A successful parry only neutralizes the specific attack or interaction that was successfully parried.
+
+After receiving non-lethal damage, the player becomes temporarily invulnerable (0.75 seconds). During this time parrying is still possible.
+
+#### Instant-death hazards
+
+Certain environmental hazards, such as spikes and bottomless pits, kill the player immediately, regardless of remaining HP or active invulnerability.
+
+These hazards cannot be neutralized through ordinary parrying unless explicitly specified otherwise.
 
 Upon death, the level is restarted according to the existing project requirements.
 
