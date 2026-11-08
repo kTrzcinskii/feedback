@@ -237,17 +237,31 @@ Ordinary surface collisions and parry-based surface interactions must be treated
 
 **Parry-based collision:**
 
-When a successful surface parry occurs, the player's velocity is reflected or modified using the surface normal.
+When a successful surface parry occurs, the player's velocity is modified using the surface normal.
 
 The surface normal determines the direction away from the contacted surface.
 
-The tangential component of the player's velocity should be preserved to maintain smooth movement.
+The interaction consists of two components:
 
-For a surface with outward unit normal `n`, a conventional velocity reflection can be expressed as:
+1. Momentum redirection: If the player is moving towards the surface, the velocity component perpendicular to the surface is reflected. The tangential component is preserved.
+
+2. Momentum generation: An additional impulse is applied in the direction of the surface normal, allowing the player to generate momentum even when standing still or moving away from the surface.
+
+For a surface with outward unit normal `n`, the resulting velocity can be expressed as:
+
+`v_new = v_reflected + J * n`
+
+where `J` is the magnitude of the additional surface-parry impulse.
+
+If the player is moving towards the surface (`dot(v, n) < 0`), the reflected velocity is calculated as:
 
 `v_reflected = v - (1 + e) * dot(v, n) * n`
 
-Where `e` is the coefficient of restitution. We can have different type of surfaces with different values of `e` giving us more content for level design.
+where `e` is the coefficient of restitution.
+
+Otherwise, the existing velocity is preserved before applying the additional impulse.
+
+We can have different type of surfaces with different values of `J` and `e` giving us more content for level design.
 
 ### 3.6. Collision with hazards and damage handling
 
