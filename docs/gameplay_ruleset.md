@@ -89,6 +89,11 @@ The active window begins immediately upon button activation. There is no startup
 
 The cooldown starts when the active window ends.
 
+A successful parry against an enemy attack resets the parry cooldown, allowing the player to initiate another parry immediately after the current active window ends.
+This allows consecutive enemy attacks to be parried without requiring the player to wait for the original cooldown to expire.
+
+A successful environmental surface parry does not reset the cooldown. TODO: change after gameplay tests
+
 ### 2.5. Successful parry resolution
 
 A parry is successful when a valid attack or surface intersects the directional parry hitbox during the active window.
