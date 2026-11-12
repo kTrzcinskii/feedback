@@ -65,7 +65,7 @@ func _setup_hud() -> void:
 	layout.add_child(controls)
 	controls.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	controls.position += Vector2(28, -40)
-	controls.text = "A / D  or  ← / →   MOVE       SPACE   JUMP       R   RESET"
+	controls.text = "A / D  or  ← / →   MOVE / AIM       SPACE   JUMP       E / J / SHIFT   PARRY       R   RESET       T   SURFACE CD"
 	controls.add_theme_font_size_override("font_size", 12)
 	controls.add_theme_color_override("font_color", Color("a0afbc"))
 
@@ -74,6 +74,10 @@ func _physics_process(delta: float) -> void:
 	if InputMap.has_action("Restart") and Input.is_action_just_pressed("Restart"):
 		reset_room()
 		return
+
+	if InputMap.has_action("ToggleCooldownReset") and Input.is_action_just_pressed("ToggleCooldownReset"):
+		if player != null:
+			player.reset_cooldown_on_surface_parry = not player.reset_cooldown_on_surface_parry
 
 	# Section 3.6: Bottomless pits are instant-death hazards that kill the player immediately
 	if player != null and not _reset_pending and player.global_position.y > fall_limit_y:
@@ -124,3 +128,32 @@ func _update_hud() -> void:
 		player.hp, player.max_hp, state,
 		player.velocity.x, player.velocity.y, vel_ch.x, vel_ch.y,
 	]
+	_hud_label.text += "\nPARRY %s  %.2fs\nAIM %s  LOCK %s\nRANGE %.1f CH  ±%.1f°\nCD RESET: ATTACK %s / SURFACE %s" % [
+		player.get_parry_state_name(), player.parry_timer,
+		_format_dir(player.get_aim_direction_preview()), _format_dir(player.parry_direction),
+		player.parry_hitbox_range_ch, player.parry_angular_coverage_deg,
+		str(player.reset_cooldown_on_attack_parry), str(player.reset_cooldown_on_surface_parry),
+	]
+
+
+static func _format_dir(d: Vector2) -> String:
+	var n: Vector2 = d.normalized()
+	var sx: int = int(roundf(n.x))
+	var sy: int = int(roundf(n.y))
+	if sx == 1 and sy == 0:
+		return "RIGHT (1, 0)"
+	if sx == -1 and sy == 0:
+		return "LEFT (-1, 0)"
+	if sx == 0 and sy == -1:
+		return "UP (0, -1)"
+	if sx == 0 and sy == 1:
+		return "DOWN (0, 1)"
+	if sx == 1 and sy == -1:
+		return "UP-RIGHT (0.71, -0.71)"
+	if sx == -1 and sy == -1:
+		return "UP-LEFT (-0.71, -0.71)"
+	if sx == 1 and sy == 1:
+		return "DOWN-RIGHT (0.71, 0.71)"
+	if sx == -1 and sy == 1:
+		return "DOWN-LEFT (-0.71, 0.71)"
+	return "(%.2f, %.2f)" % [d.x, d.y]

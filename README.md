@@ -13,6 +13,17 @@
   Surface artwork follows the collision geometry.
 - [`scripts/tests/test_parry_suite.gd`](scripts/tests/test_parry_suite.gd): Headless .
 
+## Controls
+
+| Action | Input Map Actions | Default Keys |
+| --- | --- | --- |
+| Move Left / Right | `MoveLeft`, `MoveRight` | `A` / `D` or `Left` / `Right` |
+| Aim Parry (8-Way) | `ParryUp`, `ParryDown`, `ParryLeft`, `ParryRight` | `WASD` or `Arrow Keys` (defaults to facing direction if neutral) |
+| Jump | `Jump` | `Space` |
+| Parry | `Parry` | `E`, `J`, or `Shift` |
+| Reset Room | `Restart` | `R` |
+| Toggle Surface Parry Cooldown Reset | `ToggleCooldownReset` | `T` |
+
 ## Running the Game & Tests
 
 Open [`project.godot`](project.godot) in Godot 4.7 and press **F5**, or run from the terminal:
@@ -26,7 +37,7 @@ godot --headless --path . --fixed-fps 60 -s res://scripts/test_level/test_level_
 ## Mechanics
 
 - Projectile collision is not implemented yet.
-- The parry mechanic is not implemented yet.
+- FB023 implements the parry activation window, cooldown, directional lock, and 8-way sector hitbox. Combat contact resolution follows in FB024.
 
 ## Levels
 
