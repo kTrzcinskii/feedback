@@ -33,6 +33,8 @@ func run_tests() -> void:
 	check(spawn_hits == 0 and player.hp == player.max_hp and not level._reset_pending,
 		"Spawn stays safe through eight seconds of live attack cycles")
 
+	await test_downhill_grounding(level, player)
+
 	# Walk and jump with the real controller, without teleporting between landings.
 	level.reset_room()
 	player.position = Vector2(60, 0)
@@ -102,3 +104,25 @@ func jump_to(player: PlayerCharacter, target: Vector2) -> void:
 	check(landed, "Reach landing %s with an ordinary jump (ended at %s)" % [target, player.position])
 	player.sim_move_dir = Vector2.ZERO
 	await step_frames(2)
+
+
+func test_downhill_grounding(level: TestLevel, player: PlayerCharacter) -> void:
+	level.reset_room()
+	player.position = Vector2(-400, -180)
+	await step_frames(30)
+	check(player.is_on_floor(), "Player settles on the tilted platform")
+	var starting_y := player.position.y
+	player.sim_move_dir = Vector2.LEFT
+	var airborne_frames := 0
+	for i in range(10):
+		await step_frames(1)
+		if not player.is_on_floor():
+			airborne_frames += 1
+	check(player.position.y > starting_y + 10.0, "Player actually travels downhill")
+	check(airborne_frames == 0,
+		"Downhill movement stays grounded on every frame (%d airborne frames)" % airborne_frames)
+	player.sim_jump_just_pressed = true
+	await step_frames(1)
+	player.sim_jump_just_pressed = false
+	check(not player.is_on_floor() and player.velocity.y < -400.0,
+		"A downhill jump detaches immediately from the slope")

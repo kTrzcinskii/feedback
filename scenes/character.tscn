@@ -264,6 +264,8 @@ animations = [{
 radius = 22.022715
 
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=793689480]
+; Follow downhill surfaces without briefly losing floor contact.
+floor_snap_length = 8.0
 script = ExtResource("1_rkhd4")
 
 [node name="PlayerVisual" parent="." unique_id=1840151632 instance=ExtResource("7_layered")]
