@@ -147,7 +147,7 @@ func _setup_level_fixtures() -> void:
 		add_child(emitter)
 
 	for i in range(2):
-		var spikes := LethalHazard.new()
+		var spikes := LethalSpikesHazard.new()
 		spikes.name = "SpikesHazard%d" % i
 		spikes.position = Vector2(816 + i * 96, 112)
 		spikes.hit_radius = 32.0

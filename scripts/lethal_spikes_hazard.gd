@@ -1,16 +1,17 @@
-class_name LethalHazard
+## Code first implementation of a lethal spikes hazard
+## The class can be used as usual with scenes but also supports creation
+## purely in code i.e., [code]LethalHazard.new()[/code] creates a fully
+## functional instance with [AnimatedSprite2D].
+class_name LethalSpikesHazard
 extends Area2D
 
 const HAZARD_FRAMES: SpriteFrames = preload("res://assets/godot/env-hazard.tres")
 
 @export var hit_radius: float = 22.0
 @export var damage: int = 1
-## Section 3.6: Instant-death hazards (such as spikes and bottomless pits) kill the player
-## immediately, regardless of remaining HP or active invulnerability.
 @export var is_instant_death: bool = true
 
 var _sprite: AnimatedSprite2D = null
-
 
 func _ready() -> void:
 	add_to_group("lethal_hazards")

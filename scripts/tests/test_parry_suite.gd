@@ -135,7 +135,7 @@ func _test_damage_invulnerability_and_instant_death(player: PlayerCharacter, lev
 
 	# Instant-death hazard (spikes) kills immediately regardless of remaining HP or active invulnerability
 	_assert_true(player.is_invulnerable() and player.hp > 0, "Player has remaining HP and active invulnerability before spikes contact")
-	var spikes := LethalHazard.new()
+	var spikes := LethalSpikesHazard.new()
 	level.add_child(spikes)
 	spikes.global_position = player.get_parry_origin_global() - Vector2(0, 20)
 	player._physics_process(0.016)
