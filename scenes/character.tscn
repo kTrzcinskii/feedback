@@ -1,13 +1,13 @@
 [gd_scene format=3 uid="uid://bjrihl1iy3ey8"]
 
-[ext_resource type="Script" uid="uid://du4w48bi2bgel" path="res://scripts/player_character.gd" id="1_rkhd4"]
+[ext_resource type="Script" uid="uid://du4w48bi2bgel" path="res://scripts/player/player_character.gd" id="1_rkhd4"]
 [ext_resource type="Texture2D" uid="uid://dmiregh506x17" path="res://assets/sheets/player-hurt.svg" id="2_0lw5n"]
 [ext_resource type="Texture2D" uid="uid://deoqxtblc5o80" path="res://assets/sheets/player-idle.svg" id="3_2cgup"]
 [ext_resource type="Texture2D" uid="uid://8sx0rdjhf8bc" path="res://assets/sheets/player-jump.svg" id="4_a5ia6"]
 [ext_resource type="Texture2D" uid="uid://b0moxv4p8cvm" path="res://assets/sheets/player-run.svg" id="5_0dpix"]
 [ext_resource type="Texture2D" uid="uid://eykmdhi537a3" path="res://assets/sheets/player-parry.svg" id="6_2hyy3"]
 [ext_resource type="PackedScene" path="res://assets/godot/player-layered.tscn" id="7_layered"]
-[ext_resource type="Script" path="res://scripts/player_animated_sprite.gd" id="8_sprite"]
+[ext_resource type="Script" uid="uid://bxek5ynwcbn7r" path="res://scripts/player/player_animated_sprite.gd" id="8_sprite"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_irmqu"]
 atlas = ExtResource("2_0lw5n")

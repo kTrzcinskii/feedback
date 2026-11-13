@@ -6,7 +6,7 @@ var spawn_hits := 0
 
 
 func _initialize() -> void:
-	call_deferred("run_tests")
+	run_tests.call_deferred()
 
 
 func check(condition: bool, message: String) -> void:
