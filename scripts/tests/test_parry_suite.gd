@@ -22,7 +22,8 @@ func _assert_approx(a: float, b: float, eps: float, msg: String) -> void:
 
 func _run_all_tests() -> void:
 	print("=== Running Feedback Base Groundwork Test Suite ===")
-	var packed_level: PackedScene = load("res://scenes/TestLevel.tscn") as PackedScene
+	var scene_path := "res://scenes/levels/the_proving_hall.tscn" if ResourceLoader.exists("res://scenes/levels/the_proving_hall.tscn") else "res://scenes/TestLevel.tscn"
+	var packed_level: PackedScene = load(scene_path) as PackedScene
 	var level: TestLevel = packed_level.instantiate() as TestLevel
 	root.add_child(level)
 	await process_frame

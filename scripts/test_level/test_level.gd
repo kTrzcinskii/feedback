@@ -53,19 +53,19 @@ func _setup_geometry() -> void:
 	_create_floor("Ground", Rect2(-576, 0, 1344, 384))
 	_create_floor("LandingGround", Rect2(960, 0, 864, 384))
 	_create_floor("TrenchFloor", Rect2(768, 160, 192, 224))
-	_create_surface("BounceWallLeft", Vector2(-596, -96), Vector2(40, 960), 0.0, 0.55, 1.1)
-	_create_surface("EndWall", Vector2(1844, -96), Vector2(40, 960), 0.0, 0.55, 1.1)
+	_create_surface("BounceWallLeft", Vector2(-596, -96), Vector2(40, 960), 0.0, 0.55, 1.1, false)
+	_create_surface("EndWall", Vector2(1844, -96), Vector2(40, 960), 0.0, 0.55, 1.1, false)
 
 	# 72px rises stay comfortably inside the current controller's 105px jump arc.
-	_create_surface("LowPlatform", Vector2(200, -58), Vector2(160, 28), 0.0, 0.45, 1.0)
-	_create_surface("MiddlePlatform", Vector2(360, -130), Vector2(160, 28), 0.0, 0.50, 1.05)
-	_create_surface("HighPlatform", Vector2(520, -202), Vector2(160, 28), 0.0, 0.50, 1.05)
-	_create_surface("SummitPlatform", Vector2(680, -274), Vector2(160, 28), 0.0, 0.50, 1.05)
-	_create_surface("TrenchBridge", Vector2(864, -202), Vector2(128, 28), 0.0, 0.50, 1.0)
-	_create_surface("LandingPlatform", Vector2(1056, -130), Vector2(192, 28), 0.0, 0.50, 1.0)
-	_create_surface("ReturnStep", Vector2(1216, -58), Vector2(128, 28), 0.0, 0.45, 1.0)
-	_create_surface("AngledSurface", Vector2(-432, -100), Vector2(144, 28), deg_to_rad(-25.0), 0.65, 1.15)
-	_create_surface("CeilingPlatform", Vector2(-384, -290), Vector2(240, 28), 0.0, 0.50, 1.0)
+	_create_surface("LowPlatform", Vector2(200, -58), Vector2(160, 28), 0.0, 0.45, 1.0, true)
+	_create_surface("MiddlePlatform", Vector2(360, -130), Vector2(160, 28), 0.0, 0.50, 1.05, true)
+	_create_surface("HighPlatform", Vector2(520, -202), Vector2(160, 28), 0.0, 0.50, 1.05, true)
+	_create_surface("SummitPlatform", Vector2(680, -274), Vector2(160, 28), 0.0, 0.50, 1.05, true)
+	_create_surface("TrenchBridge", Vector2(864, -202), Vector2(128, 28), 0.0, 0.50, 1.0, true)
+	_create_surface("LandingPlatform", Vector2(1056, -130), Vector2(192, 28), 0.0, 0.50, 1.0, true)
+	_create_surface("ReturnStep", Vector2(1216, -58), Vector2(128, 28), 0.0, 0.45, 1.0, true)
+	_create_surface("AngledSurface", Vector2(-432, -100), Vector2(144, 28), deg_to_rad(-25.0), 0.65, 1.15, true)
+	_create_surface("CeilingPlatform", Vector2(-384, -290), Vector2(240, 28), 0.0, 0.50, 1.0, true)
 
 	_add_room_label(Vector2(-512, -400), "01 / IMPACT ALCOVE")
 	_add_room_label(Vector2(128, -400), "02 / ASCENT")
@@ -160,7 +160,8 @@ func _create_surface(
 	p_size: Vector2,
 	p_rot: float,
 	p_restitution: float,
-	p_impulse_mult: float
+	p_impulse_mult: float,
+	p_one_way: bool = false
 ) -> ParryableSurface:
 	var body := ParryableSurface.new()
 	body.name = p_name
@@ -168,12 +169,14 @@ func _create_surface(
 	body.rotation = p_rot
 	body.restitution = p_restitution
 	body.impulse_multiplier = p_impulse_mult
+	body.one_way = p_one_way
 
 	var col := CollisionShape2D.new()
 	col.name = "CollisionShape2D"
 	var rect := RectangleShape2D.new()
 	rect.size = p_size
 	col.shape = rect
+	col.one_way_collision = p_one_way
 	body.add_child(col)
 
 	var visual := NinePatchRect.new()

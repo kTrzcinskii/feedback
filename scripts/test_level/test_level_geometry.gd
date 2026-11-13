@@ -23,7 +23,9 @@ func step_frames(count: int) -> void:
 
 
 func run_tests() -> void:
-	var level: TestLevel = load("res://scenes/TestLevel.tscn").instantiate()
+	var scene_path := "res://scenes/levels/the_proving_hall.tscn" if ResourceLoader.exists(
+			"res://scenes/levels/the_proving_hall.tscn") else "res://scenes/TestLevel.tscn"
+	var level: TestLevel = load(scene_path).instantiate()
 	root.add_child(level)
 	var player := level.player
 	player.use_simulated_input = true
@@ -31,9 +33,10 @@ func run_tests() -> void:
 	await step_frames(480)
 	player.player_damaged.disconnect(count_spawn_hit)
 	check(spawn_hits == 0 and player.hp == player.max_hp and not level._reset_pending,
-		"Spawn stays safe through eight seconds of live attack cycles")
+			"Spawn stays safe through eight seconds of live attack cycles")
 
 	await test_downhill_grounding(level, player)
+	await test_one_way_platforms(level, player)
 
 	# Walk and jump with the real controller, without teleporting between landings.
 	level.reset_room()
@@ -51,7 +54,7 @@ func run_tests() -> void:
 	player.position = Vector2(864, 0)
 	await step_frames(60)
 	check(player.position.distance_to(Vector2.ZERO) < 12.0 and player.hp == player.max_hp,
-		"Falling into the spike trench resets the player safely")
+			"Falling into the spike trench resets the player safely")
 
 	# A running jump also provides a short route across the trench at floor level.
 	level.reset_room()
@@ -66,7 +69,7 @@ func run_tests() -> void:
 	player.sim_move_dir = Vector2.ZERO
 	await step_frames(12)
 	check(player.global_position.x > 960 and player.is_on_floor() and player.hp == player.max_hp,
-		"The lower trench crossing is reachable with a running jump")
+			"The lower trench crossing is reachable with a running jump")
 
 	# The collision floor ends at the visible boundaries, rather than continuing infinitely.
 	var space := level.get_world_2d().direct_space_state
@@ -120,9 +123,78 @@ func test_downhill_grounding(level: TestLevel, player: PlayerCharacter) -> void:
 			airborne_frames += 1
 	check(player.position.y > starting_y + 10.0, "Player actually travels downhill")
 	check(airborne_frames == 0,
-		"Downhill movement stays grounded on every frame (%d airborne frames)" % airborne_frames)
+			"Downhill movement stays grounded on every frame (%d airborne frames)" % airborne_frames)
 	player.sim_jump_just_pressed = true
 	await step_frames(1)
 	player.sim_jump_just_pressed = false
 	check(not player.is_on_floor() and player.velocity.y < -400.0,
-		"A downhill jump detaches immediately from the slope")
+			"A downhill jump detaches immediately from the slope")
+
+
+func test_one_way_platforms(level: TestLevel, player: PlayerCharacter) -> void:
+	var platform_names := [
+		"LowPlatform", "MiddlePlatform", "HighPlatform", "SummitPlatform",
+		"TrenchBridge", "LandingPlatform", "ReturnStep", "AngledSurface", "CeilingPlatform"
+	]
+	for plat_name in platform_names:
+		var surface: ParryableSurface = level.get_node_or_null(plat_name) as ParryableSurface
+		check(surface != null, "Platform %s exists in test level" % plat_name)
+		if surface != null:
+			var col: CollisionShape2D = surface.get_node_or_null("CollisionShape2D") as CollisionShape2D
+			check(col != null and col.one_way_collision, "Platform %s has one-way collision enabled" % plat_name)
+
+	# Verify walls are not one-way
+	for wall_name in ["BounceWallLeft", "EndWall"]:
+		var wall: ParryableSurface = level.get_node_or_null(wall_name) as ParryableSurface
+		if wall != null:
+			var col: CollisionShape2D = wall.get_node_or_null("CollisionShape2D") as CollisionShape2D
+			check(col != null and not col.one_way_collision, "Wall %s remains solid (not one-way)" % wall_name)
+
+	# Test jumping onto LowPlatform directly from below:
+	# Floor is at y = 0, LowPlatform top is at y = -72 (landing y = -64).
+	# A jump from beneath passes through the underside and lands safely on top.
+	level.reset_room()
+	player.position = Vector2(200, 0)
+	await step_frames(12)
+	check(player.is_on_floor(), "Player is grounded beneath LowPlatform")
+	player.sim_jump_just_pressed = true
+	await step_frames(1)
+	player.sim_jump_just_pressed = false
+
+	var passed_through_upwards := false
+	var landed_on_platform := false
+	for i in range(70):
+		await step_frames(1)
+		# Ascending through platform height (above platform bottom -44 with upward velocity)
+		if player.velocity.y < 0.0 and player.position.y < -70.0:
+			passed_through_upwards = true
+		if i > 5 and player.is_on_floor():
+			landed_on_platform = absf(player.position.y - (-64.0)) < 4.0 and absf(player.position.x - 200.0) < 10.0
+			break
+
+	check(passed_through_upwards, "Player jumps through LowPlatform from below without being blocked")
+	check(landed_on_platform and player.is_on_floor(),
+			"Player lands and stands firmly on top of LowPlatform from below")
+
+	# Test jumping onto ReturnStep directly from below:
+	# Floor is at y = 0, ReturnStep top is at y = -72 (landing y = -64).
+	level.reset_room()
+	player.position = Vector2(1216, 0)
+	await step_frames(12)
+	check(player.is_on_floor(), "Player is grounded beneath ReturnStep")
+	player.sim_jump_just_pressed = true
+	await step_frames(1)
+	player.sim_jump_just_pressed = false
+
+	passed_through_upwards = false
+	landed_on_platform = false
+	for i in range(70):
+		await step_frames(1)
+		if player.velocity.y < 0.0 and player.position.y < -70.0:
+			passed_through_upwards = true
+		if i > 5 and player.is_on_floor():
+			landed_on_platform = absf(player.position.y - (-64.0)) < 4.0 and absf(player.position.x - 1216.0) < 10.0
+			break
+
+	check(passed_through_upwards, "Player jumps through ReturnStep from below without being blocked")
+	check(landed_on_platform and player.is_on_floor(), "Player lands and stands firmly on top of ReturnStep from below")

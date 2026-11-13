@@ -15,6 +15,9 @@ extends StaticBody2D
 ## Multiplier applied to the surface parry impulse 'J' on this surface
 @export var impulse_multiplier: float = 1.0
 
+## Whether this surface allows one-way collision
+@export var one_way: bool = false
+
 
 func get_surface_impulse_px(default_impulse_ch: float, character_height_px: float) -> float:
 	var base_ch: float = surface_impulse_ch if surface_impulse_ch >= 0.0 else default_impulse_ch
