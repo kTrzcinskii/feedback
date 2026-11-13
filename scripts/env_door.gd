@@ -1,7 +1,13 @@
+## Code first implementation of a door
+## The door instance can be used as usual with scenes but also supports
+## creation purely in code i.e., [code]EnvDoor.new()[/code] creates a
+## fully functional instance with [CollisionShape2D] and
+## [AnimatedSprite2D].
 class_name EnvDoor
 extends StaticBody2D
 
 const DOOR_FRAMES: SpriteFrames = preload("res://assets/godot/env-door.tres")
+static var OPEN_FRAME: int = _resolve_open_frame()
 
 var is_open: bool = false
 var _sprite: AnimatedSprite2D = null
@@ -51,4 +57,9 @@ func _apply_state() -> void:
 		_collision.disabled = is_open
 	if _sprite != null:
 		_sprite.stop()
-		_sprite.frame = 3 if is_open else 0
+		_sprite.frame = OPEN_FRAME if is_open else 0
+
+static func _resolve_open_frame() -> int:
+	if DOOR_FRAMES != null and DOOR_FRAMES.has_animation(&"door"):
+		return max(0, DOOR_FRAMES.get_frame_count(&"door") - 1)
+	return 0
