@@ -1,6 +1,8 @@
 class_name PhysicalAttackFixture
 extends Area2D
 
+const STRIKER_TEXTURE: Texture2D = preload("res://assets/environment/training-striker.svg")
+
 enum Phase { IDLE, TELEGRAPH, ACTIVE, RECOVERY }
 
 @export var telegraph_duration: float = 0.55
@@ -96,17 +98,18 @@ func _draw() -> void:
 	var fill_col: Color
 	var ring_col: Color
 	if phase == Phase.ACTIVE and not _neutralized_in_current_swing:
-		fill_col = Color(0.94, 0.35, 0.30, 0.45)
+		fill_col = Color(0.94, 0.35, 0.30, 0.22)
 		ring_col = Color(1.0, 0.55, 0.45, 0.95)
 	elif phase == Phase.TELEGRAPH:
 		var pulse: float = 1.0 - clampf(phase_timer / maxf(0.01, telegraph_duration), 0.0, 1.0)
-		fill_col = Color(0.95, 0.75, 0.25, 0.15 + 0.25 * pulse)
+		fill_col = Color(0.95, 0.75, 0.25, 0.04 + 0.10 * pulse)
 		ring_col = Color(0.95, 0.80, 0.35, 0.85)
 	else:
-		fill_col = Color(0.35, 0.42, 0.50, 0.15)
+		fill_col = Color(0.35, 0.42, 0.50, 0.04)
 		ring_col = Color(0.55, 0.62, 0.70, 0.45)
 
 	draw_circle(Vector2.ZERO, attack_radius, fill_col)
-	draw_arc(Vector2.ZERO, attack_radius, 0.0, TAU, 28, ring_col, 2.5)
+	draw_texture(STRIKER_TEXTURE, Vector2(-24, -20))
+	draw_arc(Vector2.ZERO, attack_radius, 0.0, TAU, 48, ring_col, 1.5, true)
 	var dir_vec: Vector2 = get_impulse_direction() * (attack_radius * 0.75)
-	draw_line(Vector2.ZERO, dir_vec, ring_col, 3.0)
+	draw_line(get_impulse_direction() * 14.0, dir_vec, ring_col, 2.0, true)

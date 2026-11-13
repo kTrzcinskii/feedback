@@ -2,6 +2,9 @@ class_name TestLevel
 extends Node2D
 
 const PLATFORM_GROUND: SpriteFrames = preload("res://assets/godot/platform-ground.tres")
+const LEDGE_TEXTURE: Texture2D = preload("res://assets/environment/training-ledge.svg")
+const HALL_TEXTURE: Texture2D = preload("res://assets/environment/training-hall.svg")
+const WALL_TEXTURE: Texture2D = preload("res://assets/environment/training-wall.svg")
 
 @export var fall_limit_y: float = 360.0
 @export var death_reset_delay: float = 0.35
@@ -21,11 +24,27 @@ func _ready() -> void:
 	elif player != null:
 		_initial_spawn_pos = player.global_position
 
+	_setup_backdrop()
 	_setup_level_fixtures()
 	_setup_hud()
+	_update_hud()
 
 	if player != null:
 		player.player_died.connect(_on_player_died)
+
+
+func _setup_backdrop() -> void:
+	var hall := Sprite2D.new()
+	hall.name = "TrainingHall"
+	hall.texture = HALL_TEXTURE
+	hall.centered = false
+	hall.position = Vector2(-3840, -768)
+	hall.region_enabled = true
+	hall.region_rect = Rect2(0, 0, 7680, 1280)
+	hall.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	hall.z_index = -10
+	hall.modulate = Color(0.76, 0.80, 0.85)
+	add_child(hall)
 
 
 func _setup_level_fixtures() -> void:
@@ -34,9 +53,10 @@ func _setup_level_fixtures() -> void:
 	decor.z_index = -2
 	add_child(decor)
 
-	for i in range(-9, 14):
+	for i in range(-40, 41):
 		var spr := AnimatedSprite2D.new()
 		spr.sprite_frames = PLATFORM_GROUND
+		spr.animation = &"ground"
 		spr.centered = false
 		spr.offset = Vector2(-48, -48)
 		spr.position = Vector2(i * 96, 48)
@@ -45,19 +65,19 @@ func _setup_level_fixtures() -> void:
 		decor.add_child(spr)
 
 	if get_node_or_null("BounceWallLeft") == null:
-		_create_box_surface("BounceWallLeft", Vector2(-420, -140), Vector2(40, 280), 0.0, 0.55, 1.1, Color(0.24, 0.32, 0.42))
+		_create_surface("BounceWallLeft", Vector2(-420, -140), Vector2(40, 280), 0.0, 0.55, 1.1)
 
 	if get_node_or_null("AngledSurface") == null:
-		_create_box_surface("AngledSurface", Vector2(-220, -110), Vector2(120, 28), deg_to_rad(-35.0), 0.65, 1.15, Color(0.38, 0.48, 0.35))
+		_create_surface("AngledSurface", Vector2(-220, -110), Vector2(120, 28), deg_to_rad(-35.0), 0.65, 1.15)
 
 	if get_node_or_null("LowPlatform") == null:
-		_create_box_surface("LowPlatform", Vector2(180, -110), Vector2(192, 28), 0.0, 0.45, 1.0, Color(0.28, 0.36, 0.44))
+		_create_surface("LowPlatform", Vector2(180, -110), Vector2(192, 28), 0.0, 0.45, 1.0)
 
 	if get_node_or_null("HighPlatform") == null:
-		_create_box_surface("HighPlatform", Vector2(180, -270), Vector2(192, 28), 0.0, 0.50, 1.05, Color(0.40, 0.34, 0.55))
+		_create_surface("HighPlatform", Vector2(180, -270), Vector2(192, 28), 0.0, 0.50, 1.05)
 
 	if get_node_or_null("CeilingPlatform") == null:
-		_create_box_surface("CeilingPlatform", Vector2(-40, -340), Vector2(220, 28), 0.0, 0.50, 1.0, Color(0.24, 0.30, 0.38))
+		_create_surface("CeilingPlatform", Vector2(-40, -340), Vector2(220, 28), 0.0, 0.50, 1.0)
 
 	if get_node_or_null("PhysicalFixture") == null:
 		var phys := PhysicalAttackFixture.new()
@@ -98,14 +118,13 @@ func _setup_level_fixtures() -> void:
 		add_child(spikes)
 
 
-func _create_box_surface(
+func _create_surface(
 	p_name: String,
 	p_pos: Vector2,
 	p_size: Vector2,
 	p_rot: float,
 	p_restitution: float,
-	p_impulse_mult: float,
-	p_color: Color
+	p_impulse_mult: float
 ) -> ParrySurface:
 	var body := ParrySurface.new()
 	body.name = p_name
@@ -121,17 +140,18 @@ func _create_box_surface(
 	col.shape = rect
 	body.add_child(col)
 
-	var poly := Polygon2D.new()
-	var hw: float = p_size.x * 0.5
-	var hh: float = p_size.y * 0.5
-	poly.polygon = PackedVector2Array([
-		Vector2(-hw, -hh),
-		Vector2(hw, -hh),
-		Vector2(hw, hh),
-		Vector2(-hw, hh),
-	])
-	poly.color = p_color
-	body.add_child(poly)
+	var visual := NinePatchRect.new()
+	visual.name = "SurfaceVisual"
+	visual.position = -p_size * 0.5
+	visual.size = p_size
+	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if p_size.y > p_size.x:
+		visual.texture = WALL_TEXTURE
+	else:
+		visual.texture = LEDGE_TEXTURE
+		visual.patch_margin_left = 18
+		visual.patch_margin_right = 18
+	body.add_child(visual)
 
 	add_child(body)
 	return body
@@ -142,14 +162,42 @@ func _setup_hud() -> void:
 	canvas.name = "HUD"
 	add_child(canvas)
 
-	var panel := PanelContainer.new()
-	panel.position = Vector2(16, 16)
-	canvas.add_child(panel)
+	var layout := Control.new()
+	layout.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.add_child(layout)
+
+	var title := Label.new()
+	title.position = Vector2(28, 22)
+	title.text = "F E E D B A C K"
+	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", Color("d1d9df"))
+	layout.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.position = Vector2(29, 52)
+	subtitle.text = "01  /  THE PROVING HALL"
+	subtitle.add_theme_font_size_override("font_size", 11)
+	subtitle.add_theme_color_override("font_color", Color("9da4b7"))
+	layout.add_child(subtitle)
 
 	_hud_label = Label.new()
 	_hud_label.name = "TelemetryLabel"
-	_hud_label.add_theme_font_size_override("font_size", 14)
-	panel.add_child(_hud_label)
+	layout.add_child(_hud_label)
+	_hud_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_hud_label.position += Vector2(-350, 24)
+	_hud_label.size = Vector2(322, 60)
+	_hud_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_hud_label.add_theme_font_size_override("font_size", 13)
+	_hud_label.add_theme_color_override("font_color", Color("b5c2ce"))
+
+	var controls := Label.new()
+	layout.add_child(controls)
+	controls.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	controls.position += Vector2(28, -40)
+	controls.text = "A / D  or  ← / →   MOVE       SPACE   JUMP       R   RESET"
+	controls.add_theme_font_size_override("font_size", 12)
+	controls.add_theme_color_override("font_color", Color("a0afbc"))
 
 
 func _physics_process(delta: float) -> void:
@@ -199,19 +247,10 @@ func _update_hud() -> void:
 		return
 	var ch: float = maxf(1.0, player.character_height)
 	var vel_ch: Vector2 = player.velocity / ch
-	var invuln_str: String = "INVULN (%.2fs)" % player.invulnerability_timer if player.is_invulnerable() else "NO"
-	var lines: PackedStringArray = [
-		"FEEDBACK — Test Room",
-		"Controls: Move [A/D or Left/Right] | Jump [Space] | Reset [R]",
-		"HP: %d/%d | Invulnerable: %s | Velocity: (%.0f, %.0f) px/s [(%.1f, %.1f) CH/s] | Grounded: %s" % [
-			player.hp,
-			player.max_hp,
-			invuln_str,
-			player.velocity.x,
-			player.velocity.y,
-			vel_ch.x,
-			vel_ch.y,
-			str(player.is_on_floor())
-		],
+	var state: String = "GROUNDED" if player.is_on_floor() else "AIRBORNE"
+	if player.is_invulnerable():
+		state = "INVULNERABLE  %.2fs" % player.invulnerability_timer
+	_hud_label.text = "HP  %d / %d     •     %s\nVELOCITY   %.0f, %.0f px/s  /  %.1f, %.1f CH/s" % [
+		player.hp, player.max_hp, state,
+		player.velocity.x, player.velocity.y, vel_ch.x, vel_ch.y,
 	]
-	_hud_label.text = "\n".join(lines)

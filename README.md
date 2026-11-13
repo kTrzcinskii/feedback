@@ -6,6 +6,7 @@
 
 - [`scenes/TestLevel.tscn`](scenes/TestLevel.tscn): Playable test room with projectile sentinel, switch & door, telegraphed physical attack fixture, bounce walls/surfaces, spikes hazard, and HUD.
 - [`scenes/character.tscn`](scenes/character.tscn) & [`scripts/character.gd`](scripts/character.gd): Player character controller.
+- [`assets/environment/`](assets/environment/): Original SVG architecture for the Proving Hall, including beveled ledges, reinforced walls, and a mechanical attack fixture. Surface artwork fits the existing collision geometry; the backdrop is decorative.
 - [`scripts/test_parry_suite.gd`](scripts/test_parry_suite.gd): Headless automated verification suite.
 
 ## Running the Game & Tests

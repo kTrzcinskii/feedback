@@ -17,7 +17,8 @@ position = Vector2(0, 0)
 [node name="CharacterBody2D" parent="." unique_id=793689480 instance=ExtResource("1_dojpo")]
 
 [node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=1287858080]
-position = Vector2(0, -64)
+position = Vector2(40, -160)
+zoom = Vector2(0.95, 0.95)
 
 [node name="Ground" type="StaticBody2D" parent="." unique_id=608428462]
 script = ExtResource("3_psurf")
