@@ -1,3 +1,7 @@
+## Code first implementation of an environmental switch
+## The switch instance can be used as usual with scenes but also
+## supports creation purely in code i.e., [code]EnvSwitch.new()[/code]
+## creates a fully functional instance with [AnimatedSprite2D].
 class_name EnvSwitch
 extends Area2D
 
@@ -5,6 +9,7 @@ signal switch_activated(switch_node: EnvSwitch)
 signal switch_reset(switch_node: EnvSwitch)
 
 const SWITCH_FRAMES: SpriteFrames = preload("res://assets/godot/env-switch.tres")
+static var SWITCHED_FRAME: int = _resolve_switched_frame()
 
 @export var linked_door: NodePath
 @export var hit_radius: float = 28.0
@@ -31,9 +36,9 @@ func _ready() -> void:
 func get_hit_radius() -> float:
 	return hit_radius
 
-
+## Only reflected projectiles activate the switch, and only once until
+## reset
 func on_hit_by_projectile(projectile: ParryProjectile) -> void:
-	# WF-13 / FB074: Only reflected projectiles activate the switch, and only once until reset
 	if projectile == null or not projectile.is_reflected:
 		return
 	if is_activated:
@@ -61,5 +66,10 @@ func _update_visual() -> void:
 	if _sprite == null:
 		return
 	_sprite.stop()
-	_sprite.frame = 2 if is_activated else 0
+	_sprite.frame = SWITCHED_FRAME if is_activated else 0
 	_sprite.modulate = Color(0.76, 0.96, 0.72, 1.0) if is_activated else Color(1.0, 1.0, 1.0, 1.0)
+
+static func _resolve_switched_frame() -> int:
+	if SWITCH_FRAMES != null and SWITCH_FRAMES.has_animation(&"switch"):
+		return max(0, SWITCH_FRAMES.get_frame_count(&"switch") - 1)
+	return 0
