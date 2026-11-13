@@ -2,6 +2,7 @@ class_name TestLevel
 extends Node2D
 
 const PLATFORM_GROUND: SpriteFrames = preload("res://assets/godot/platform-ground.tres")
+const FOUNDATION_TEXTURE: Texture2D = preload("res://assets/environment/foundation.svg")
 const LEDGE_TEXTURE: Texture2D = preload("res://assets/environment/training-ledge.svg")
 const HALL_TEXTURE: Texture2D = preload("res://assets/environment/training-hall.svg")
 const WALL_TEXTURE: Texture2D = preload("res://assets/environment/training-wall.svg")
@@ -25,6 +26,7 @@ func _ready() -> void:
 		_initial_spawn_pos = player.global_position
 
 	_setup_backdrop()
+	_setup_geometry()
 	_setup_level_fixtures()
 	_setup_hud()
 	_update_hud()
@@ -38,51 +40,84 @@ func _setup_backdrop() -> void:
 	hall.name = "TrainingHall"
 	hall.texture = HALL_TEXTURE
 	hall.centered = false
-	hall.position = Vector2(-3840, -768)
+	hall.position = Vector2(-768, -768)
 	hall.region_enabled = true
-	hall.region_rect = Rect2(0, 0, 7680, 1280)
+	hall.region_rect = Rect2(0, 0, 3072, 768)
 	hall.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	hall.z_index = -10
 	hall.modulate = Color(0.76, 0.80, 0.85)
 	add_child(hall)
 
 
+func _setup_geometry() -> void:
+	_create_floor("Ground", Rect2(-576, 0, 1344, 384))
+	_create_floor("LandingGround", Rect2(960, 0, 864, 384))
+	_create_floor("TrenchFloor", Rect2(768, 160, 192, 224))
+	_create_surface("BounceWallLeft", Vector2(-596, -96), Vector2(40, 960), 0.0, 0.55, 1.1)
+	_create_surface("EndWall", Vector2(1844, -96), Vector2(40, 960), 0.0, 0.55, 1.1)
+
+	# 72px rises stay comfortably inside the current controller's 105px jump arc.
+	_create_surface("LowPlatform", Vector2(200, -58), Vector2(160, 28), 0.0, 0.45, 1.0)
+	_create_surface("MiddlePlatform", Vector2(360, -130), Vector2(160, 28), 0.0, 0.50, 1.05)
+	_create_surface("HighPlatform", Vector2(520, -202), Vector2(160, 28), 0.0, 0.50, 1.05)
+	_create_surface("SummitPlatform", Vector2(680, -274), Vector2(160, 28), 0.0, 0.50, 1.05)
+	_create_surface("TrenchBridge", Vector2(864, -202), Vector2(128, 28), 0.0, 0.50, 1.0)
+	_create_surface("LandingPlatform", Vector2(1056, -130), Vector2(192, 28), 0.0, 0.50, 1.0)
+	_create_surface("ReturnStep", Vector2(1216, -58), Vector2(128, 28), 0.0, 0.45, 1.0)
+	_create_surface("AngledSurface", Vector2(-432, -100), Vector2(144, 28), deg_to_rad(-25.0), 0.65, 1.15)
+	_create_surface("CeilingPlatform", Vector2(-384, -290), Vector2(240, 28), 0.0, 0.50, 1.0)
+
+	_add_room_label(Vector2(-512, -400), "01 / IMPACT ALCOVE")
+	_add_room_label(Vector2(128, -400), "02 / ASCENT")
+	_add_room_label(Vector2(792, 208), "SPIKE TRENCH")
+	_add_room_label(Vector2(1320, -240), "03 / PROJECTILE RANGE")
+
+
+func _create_floor(p_name: String, bounds: Rect2) -> void:
+	var floor_body := ParrySurface.new()
+	floor_body.name = p_name
+	floor_body.position = bounds.position
+	floor_body.restitution = 0.45
+	add_child(floor_body)
+
+	var collision := CollisionShape2D.new()
+	var shape := RectangleShape2D.new()
+	shape.size = bounds.size
+	collision.shape = shape
+	collision.position = bounds.size * 0.5
+	floor_body.add_child(collision)
+
+	var foundation := TextureRect.new()
+	foundation.texture = FOUNDATION_TEXTURE
+	foundation.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+	foundation.stretch_mode = TextureRect.STRETCH_TILE
+	foundation.position.y = 20
+	foundation.size = bounds.size - Vector2(0, 20)
+	foundation.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	floor_body.add_child(foundation)
+
+	for i in range(int(bounds.size.x / 96)):
+		var tile := Sprite2D.new()
+		tile.texture = PLATFORM_GROUND.get_frame_texture(&"ground", i % 4)
+		tile.centered = false
+		tile.position.x = i * 96
+		floor_body.add_child(tile)
+
+
+func _add_room_label(at: Vector2, text: String) -> void:
+	var label := Label.new()
+	label.position = at
+	label.text = text
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", Color("7e8e9e"))
+	add_child(label)
+
+
 func _setup_level_fixtures() -> void:
-	var decor := Node2D.new()
-	decor.name = "TileDecor"
-	decor.z_index = -2
-	add_child(decor)
-
-	for i in range(-40, 41):
-		var spr := AnimatedSprite2D.new()
-		spr.sprite_frames = PLATFORM_GROUND
-		spr.animation = &"ground"
-		spr.centered = false
-		spr.offset = Vector2(-48, -48)
-		spr.position = Vector2(i * 96, 48)
-		spr.stop()
-		spr.frame = posmod(i, 4)
-		decor.add_child(spr)
-
-	if get_node_or_null("BounceWallLeft") == null:
-		_create_surface("BounceWallLeft", Vector2(-420, -140), Vector2(40, 280), 0.0, 0.55, 1.1)
-
-	if get_node_or_null("AngledSurface") == null:
-		_create_surface("AngledSurface", Vector2(-220, -110), Vector2(120, 28), deg_to_rad(-35.0), 0.65, 1.15)
-
-	if get_node_or_null("LowPlatform") == null:
-		_create_surface("LowPlatform", Vector2(180, -110), Vector2(192, 28), 0.0, 0.45, 1.0)
-
-	if get_node_or_null("HighPlatform") == null:
-		_create_surface("HighPlatform", Vector2(180, -270), Vector2(192, 28), 0.0, 0.50, 1.05)
-
-	if get_node_or_null("CeilingPlatform") == null:
-		_create_surface("CeilingPlatform", Vector2(-40, -340), Vector2(220, 28), 0.0, 0.50, 1.0)
-
 	if get_node_or_null("PhysicalFixture") == null:
 		var phys := PhysicalAttackFixture.new()
 		phys.name = "PhysicalFixture"
-		phys.position = Vector2(-60, -44)
+		phys.position = Vector2(-300, -44)
 		phys.impulse_direction = Vector2(0.65, -0.76)
 		add_child(phys)
 
@@ -90,31 +125,32 @@ func _setup_level_fixtures() -> void:
 	if door_node == null:
 		door_node = EnvDoor.new()
 		door_node.name = "PuzzleDoor"
-		door_node.position = Vector2(640, -48)
+		door_node.position = Vector2(1760, -48)
 		add_child(door_node)
 
 	var switch_node: EnvSwitch = get_node_or_null("PuzzleSwitch") as EnvSwitch
 	if switch_node == null:
 		switch_node = EnvSwitch.new()
 		switch_node.name = "PuzzleSwitch"
-		switch_node.position = Vector2(560, -48)
+		switch_node.position = Vector2(1680, -48)
 		add_child(switch_node)
 		switch_node.linked_door = switch_node.get_path_to(door_node)
 
 	if get_node_or_null("SentinelEmitter") == null:
 		var emitter := ProjectileEmitter.new()
 		emitter.name = "SentinelEmitter"
-		emitter.position = Vector2(460, 0)
-		emitter.fire_direction = Vector2.LEFT
+		emitter.position = Vector2(1344, 0)
+		emitter.fire_direction = Vector2.RIGHT
 		emitter.projectile_speed = 320.0
 		emitter.fire_interval = 2.0
 		emitter.respawn_after_defeat_delay = 3.0
 		add_child(emitter)
 
-	if get_node_or_null("SpikesHazard") == null:
+	for i in range(2):
 		var spikes := LethalHazard.new()
-		spikes.name = "SpikesHazard"
-		spikes.position = Vector2(-560, -48)
+		spikes.name = "SpikesHazard%d" % i
+		spikes.position = Vector2(816 + i * 96, 112)
+		spikes.hit_radius = 32.0
 		add_child(spikes)
 
 
@@ -147,6 +183,9 @@ func _create_surface(
 	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if p_size.y > p_size.x:
 		visual.texture = WALL_TEXTURE
+		visual.patch_margin_top = 12
+		visual.patch_margin_bottom = 12
+		visual.axis_stretch_vertical = NinePatchRect.AXIS_STRETCH_MODE_TILE
 	else:
 		visual.texture = LEDGE_TEXTURE
 		visual.patch_margin_left = 18

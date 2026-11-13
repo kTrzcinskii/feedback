@@ -2,9 +2,6 @@
 
 [ext_resource type="PackedScene" uid="uid://bjrihl1iy3ey8" path="res://scenes/character.tscn" id="1_dojpo"]
 [ext_resource type="Script" path="res://scripts/test_level.gd" id="2_tlevel"]
-[ext_resource type="Script" path="res://scripts/parry_surface.gd" id="3_psurf"]
-
-[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_i4dei"]
 
 [node name="TestLevel" type="Node2D" unique_id=911653244]
 script = ExtResource("2_tlevel")
@@ -19,11 +16,7 @@ position = Vector2(0, 0)
 [node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=1287858080]
 position = Vector2(40, -160)
 zoom = Vector2(0.95, 0.95)
-
-[node name="Ground" type="StaticBody2D" parent="." unique_id=608428462]
-script = ExtResource("3_psurf")
-restitution = 0.45
-impulse_multiplier = 1.0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground" unique_id=87265449]
-shape = SubResource("WorldBoundaryShape2D_i4dei")
+limit_left = -616
+limit_top = -576
+limit_right = 1864
+limit_bottom = 320
