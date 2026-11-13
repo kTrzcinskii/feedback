@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="28" viewBox="0 0 192 28" fill="none">
+  <!-- End caps stay fixed when the center is stretched by NinePatchRect. -->
+  <path d="M0 0H192V18L182 28H10L0 18Z" fill="#171f2a"/>
+  <path d="M2 2H190V8H2Z" fill="#94a6b3"/>
+  <path d="M2 8H190V12H2Z" fill="#566979"/>
+  <path d="M4 12H188V18L180 25H12L4 18Z" fill="#394655"/>
+  <path d="M18 14H174V21H18Z" fill="#202733"/>
+  <path d="M26 15H166V17H26Z" fill="#66568c"/>
+  <path d="M38 15H70V17H38ZM122 15H154V17H122Z" fill="#c3a1ff"/>
+  <path d="M9 2H13V24H9ZM179 2H183V24H179Z" fill="#28323e"/>
+  <path d="M10 4H12V7H10ZM180 4H182V7H180Z" fill="#c5cbd0"/>
+  <path d="M19 2H42V5H19ZM144 2H169V5H144Z" fill="#617a58"/>
+  <path d="M19 2H33V3H19ZM151 2H169V3H151Z" fill="#91a978"/>
+  <path d="M58 2V8M96 2V8M134 2V8" stroke="#394655" stroke-width="2"/>
+  <path d="M28 24H164" stroke="#566979" stroke-width="2"/>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="64" viewBox="0 0 48 64" fill="none">
+  <!-- The pedestal meets the floor; the surrounding ring shows the attack radius. -->
+  <path d="M14 24H34V54H14Z" fill="#171f2a"/>
+  <path d="M17 28H31V52H17Z" fill="#394655"/>
+  <path d="M18 30H21V50H18Z" fill="#647588"/>
+  <path d="M24 32H28V47H24Z" fill="#66568c"/>
+  <path d="M10 52H38L44 58V64H4V58Z" fill="#202733"/>
+  <path d="M10 53H38L41 57H7Z" fill="#647588"/>
+  <path d="M7 59H41V62H7Z" fill="#394655"/>
+  <path d="M14 0H34L46 12V30L34 40H14L2 30V12Z" fill="#171f2a"/>
+  <path d="M15 3H33L43 13V28L33 37H15L5 28V13Z" fill="#566979"/>
+  <path d="M15 3H33L38 8H10Z" fill="#9bafbf"/>
+  <path d="M14 10H34L38 14V27L31 33H17L10 27V14Z" fill="#28323e"/>
+  <path d="M20 13H28L33 18V24L28 29H20L15 24V18Z" fill="#171f2a"/>
+  <path d="M24 15L30 21L24 27L18 21Z" fill="#66568c"/>
+  <path d="M24 18L27 21L24 24L21 21Z" fill="#c3a1ff"/>
+  <path d="M7 16H9V23H7ZM39 16H41V23H39Z" fill="#9bafbf"/>
+</svg>
