@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=6 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://dassbur0be72"]
 
-[ext_resource type="Texture2D" path="../sheets/projectile-fly.svg" id="1_sheet"]
+[ext_resource type="Texture2D" uid="uid://dok7qc3dom7bb" path="res://assets/sheets/projectile-fly.svg" id="1_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1_sheet")
@@ -37,7 +37,7 @@ animations = [{
 "duration": 0.7,
 "texture": SubResource("AtlasTexture_3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"fly",
 "speed": 10.0
 }]

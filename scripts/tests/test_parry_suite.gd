@@ -166,4 +166,3 @@ func _test_layered_player_visual_assets(player: PlayerCharacter, level: TestLeve
 	player._physics_process(0.05)
 	_assert_true(player.visual_motion == "rise", "Ascending airborne player selects 'rise' locomotion state")
 	await physics_frame
-
