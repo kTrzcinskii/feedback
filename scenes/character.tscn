@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bjrihl1iy3ey8"]
 
-[ext_resource type="Script" uid="uid://du4w48bi2bgel" path="res://scripts/character.gd" id="1_rkhd4"]
+[ext_resource type="Script" uid="uid://du4w48bi2bgel" path="res://scripts/player_character.gd" id="1_rkhd4"]
 [ext_resource type="Texture2D" uid="uid://dmiregh506x17" path="res://assets/sheets/player-hurt.svg" id="2_0lw5n"]
 [ext_resource type="Texture2D" uid="uid://deoqxtblc5o80" path="res://assets/sheets/player-idle.svg" id="3_2cgup"]
 [ext_resource type="Texture2D" uid="uid://8sx0rdjhf8bc" path="res://assets/sheets/player-jump.svg" id="4_a5ia6"]
@@ -163,7 +163,7 @@ animations = [{
 "duration": 1.2,
 "texture": SubResource("AtlasTexture_8yvht")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hurt",
 "speed": 10.0
 }, {
@@ -180,7 +180,7 @@ animations = [{
 "duration": 2.4,
 "texture": SubResource("AtlasTexture_rbud2")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -203,7 +203,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_7qyni")
 }],
-"loop": false,
+"loop": 0,
 "name": &"jump",
 "speed": 10.0
 }, {
@@ -232,7 +232,7 @@ animations = [{
 "duration": 0.8,
 "texture": SubResource("AtlasTexture_imt6f")
 }],
-"loop": true,
+"loop": 1,
 "name": &"move",
 "speed": 10.0
 }, {
@@ -255,7 +255,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_bgres")
 }],
-"loop": false,
+"loop": 0,
 "name": &"parry",
 "speed": 10.0
 }]
@@ -264,7 +264,6 @@ animations = [{
 radius = 22.022715
 
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=793689480]
-; Follow downhill surfaces without briefly losing floor contact.
 floor_snap_length = 8.0
 script = ExtResource("1_rkhd4")
 

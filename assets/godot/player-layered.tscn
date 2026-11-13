@@ -1,6 +1,7 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="AnimationLibrary" path="player-layered.tres" id="Library"]
+[ext_resource type="Script" path="res://scripts/player_animation_tree.gd" id="Script_AnimTree"]
 
 [sub_resource type="AnimationNodeAnimation" id="Node_idle"]
 animation = &"idle"
@@ -88,3 +89,4 @@ tree_root = SubResource("Tree")
 anim_player = NodePath("../AnimationPlayer")
 active = true
 parameters/LocomotionSpeed/scale = 1.0
+script = ExtResource("Script_AnimTree")

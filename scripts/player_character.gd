@@ -4,24 +4,24 @@ extends CharacterBody2D
 signal player_damaged(source: Object, remaining_hp: int)
 signal player_died(source: Object)
 
-# --- Section 4: Initial tunable parameters ---
 @export_group("Units")
-## 1.0 Character Height (CH) in pixels.
+## 1.0 Character Height (CH) in pixels
 @export var character_height: float = 64.0
 
 @export_group("Movement Parameters")
-## Ordinary horizontal movement speed in CH/s (Section 3.1: applied immediately without acceleration).
+## Ordinary horizontal movement speed (in CH/s) [br]
+## [b]applied immediately without acceleration[/b]
 @export var ground_movement_speed_ch: float = 5.0
-## Upward jump impulse velocity in CH/s.
+## Upward jump impulse velocity (in CH/s)
 @export var jump_velocity_ch: float = 8.5
-## Downward gravity acceleration in CH/s².
+## Downward gravity acceleration (in CH/s²)
 @export var gravity_ch: float = 22.0
-## Airborne horizontal control acceleration in CH/s².
+## Airborne horizontal control acceleration (in CH/s²)
 @export var air_control_acceleration_ch: float = 18.0
 
 @export_group("Health & Collision")
 @export var max_hp: int = 3
-## Temporary invulnerability duration in seconds after receiving non-lethal damage (Section 3.6: 0.75 s).
+## Temporary invulnerability duration after receiving non-lethal damage (in seconds)
 @export var invulnerability_duration: float = 0.75
 @export var hurtbox_radius: float = 22.0
 @export var parry_origin_offset: Vector2 = Vector2(0.0, -32.0)
@@ -39,13 +39,13 @@ var _land_visual_timer: float = 0.0
 var _airborne_time: float = 0.0
 var _hurt_visual_active: bool = false
 
-# Optional simulated input overrides for deterministic automated testing
+# Optional simulated input overrides for deterministic testing
 var use_simulated_input: bool = false
 var sim_move_dir: Vector2 = Vector2.ZERO
 var sim_jump_just_pressed: bool = false
 
 @onready var player_visual: Node2D = get_node_or_null("PlayerVisual") as Node2D
-@onready var animation_tree: AnimationTree = get_node_or_null("PlayerVisual/AnimationTree") as AnimationTree
+@onready var animation_tree: PlayerAnimationTree = get_node_or_null("PlayerVisual/AnimationTree") as PlayerAnimationTree
 @onready var animated_sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
 
 
@@ -54,7 +54,7 @@ func _ready() -> void:
 	hp = max_hp
 	if animation_tree != null:
 		animation_tree.active = true
-	set_visual_motion("idle")
+	set_visual_motion(PlayerAnimationTree.Motion.IDLE)
 	if animated_sprite != null:
 		if not animated_sprite.animation_finished.is_connected(_on_animation_finished):
 			animated_sprite.animation_finished.connect(_on_animation_finished)
@@ -62,21 +62,31 @@ func _ready() -> void:
 		animated_sprite.play(&"idle")
 
 
-func set_visual_motion(next: String) -> void:
-	if next != visual_motion:
+func set_visual_motion(next: PlayerAnimationTree.Motion) -> void:
+	var next_name: StringName = PlayerAnimationTree.motion_to_name(next)
+	if next_name != visual_motion:
 		if animation_tree != null:
-			animation_tree.set("parameters/Locomotion/transition_request", next)
-		visual_motion = next
+			animation_tree.set_motion(next)
+		visual_motion = next_name
+
+
+func set_visual_motion_by_name(next_name: StringName) -> void:
+	set_visual_motion(PlayerAnimationTree.name_to_motion(next_name))
 
 
 func show_parry() -> void:
 	if animation_tree != null:
-		animation_tree.set("parameters/Parry/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+		animation_tree.fire_parry()
 
 
 func interrupt_parry() -> void:
 	if animation_tree != null:
-		animation_tree.set("parameters/Parry/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT)
+		animation_tree.abort_parry()
+
+
+func _set_locomotion_scale(scale_val: float) -> void:
+	if animation_tree != null:
+		animation_tree.set_locomotion_scale(scale_val)
 
 
 func set_facing(left: bool) -> void:
@@ -300,10 +310,9 @@ func reset_player_state(spawn_global_position: Vector2) -> void:
 	sim_jump_just_pressed = false
 	interrupt_parry()
 	set_facing(false)
-	if animation_tree != null:
-		animation_tree.set("parameters/LocomotionSpeed/scale", 1.0)
+	_set_locomotion_scale(1.0)
 	visual_motion = ""
-	set_visual_motion("idle")
+	set_visual_motion(PlayerAnimationTree.Motion.IDLE)
 	if player_visual != null:
 		player_visual.visible = true
 		player_visual.modulate = Color(1.0, 1.0, 1.0, 1.0)
@@ -346,29 +355,26 @@ func _update_animations_and_visuals(delta: float, input_x: float) -> void:
 
 	if not is_on_floor():
 		_land_visual_timer = 0.0
-		if animation_tree != null:
-			animation_tree.set("parameters/LocomotionSpeed/scale", 1.0)
+		_set_locomotion_scale(1.0)
 		if absf(velocity.y) <= 120.0 and absf(velocity.x) > 80.0:
-			set_visual_motion("air-move")
+			set_visual_motion(PlayerAnimationTree.Motion.AIR_MOVE)
 		elif velocity.y < 0.0:
-			set_visual_motion("rise")
+			set_visual_motion(PlayerAnimationTree.Motion.RISE)
 		else:
-			set_visual_motion("fall")
+			set_visual_motion(PlayerAnimationTree.Motion.FALL)
 	elif absf(input_x) > 0.1 or absf(velocity.x) > 5.0:
 		_land_visual_timer = 0.0
-		if animation_tree != null:
-			var base_speed: float = maxf(1.0, ground_movement_speed_ch * character_height)
-			var speed_scale: float = clampf(absf(velocity.x) / base_speed, 0.5, 2.0)
-			animation_tree.set("parameters/LocomotionSpeed/scale", speed_scale)
-		set_visual_motion("run")
+		var base_speed: float = maxf(1.0, ground_movement_speed_ch * character_height)
+		var speed_scale: float = clampf(absf(velocity.x) / base_speed, 0.5, 2.0)
+		_set_locomotion_scale(speed_scale)
+		set_visual_motion(PlayerAnimationTree.Motion.RUN)
 	else:
-		if animation_tree != null:
-			animation_tree.set("parameters/LocomotionSpeed/scale", 1.0)
+		_set_locomotion_scale(1.0)
 		if _land_visual_timer > 0.0:
 			_land_visual_timer = maxf(0.0, _land_visual_timer - delta)
-			set_visual_motion("land")
+			set_visual_motion(PlayerAnimationTree.Motion.LAND)
 		else:
-			set_visual_motion("idle")
+			set_visual_motion(PlayerAnimationTree.Motion.IDLE)
 
 	if animated_sprite == null:
 		return
