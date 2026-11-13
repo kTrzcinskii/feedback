@@ -1,0 +1,90 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="AnimationLibrary" path="player-layered.tres" id="Library"]
+
+[sub_resource type="AnimationNodeAnimation" id="Node_idle"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="Node_run"]
+animation = &"run"
+
+[sub_resource type="AnimationNodeAnimation" id="Node_rise"]
+animation = &"rise"
+
+[sub_resource type="AnimationNodeAnimation" id="Node_air_move"]
+animation = &"air-move"
+
+[sub_resource type="AnimationNodeAnimation" id="Node_fall"]
+animation = &"fall"
+
+[sub_resource type="AnimationNodeAnimation" id="Node_land"]
+animation = &"land"
+
+[sub_resource type="AnimationNodeAnimation" id="Node_parry"]
+animation = &"parry"
+
+[sub_resource type="AnimationNodeTransition" id="Locomotion"]
+xfade_time = 0.0
+input_count = 6
+input_0/name = "idle"
+input_0/reset = true
+input_1/name = "run"
+input_1/reset = true
+input_2/name = "rise"
+input_2/reset = true
+input_3/name = "air-move"
+input_3/reset = true
+input_4/name = "fall"
+input_4/reset = true
+input_5/name = "land"
+input_5/reset = true
+
+[sub_resource type="AnimationNodeTimeScale" id="Speed"]
+
+[sub_resource type="AnimationNodeOneShot" id="Parry"]
+filter_enabled = true
+filters = ["Upper:texture"]
+fadein_time = 0.0
+fadeout_time = 0.0
+
+[sub_resource type="AnimationNodeBlendTree" id="Tree"]
+nodes/idle/node = SubResource("Node_idle")
+nodes/idle/position = Vector2(-600, 0)
+nodes/run/node = SubResource("Node_run")
+nodes/run/position = Vector2(-600, 100)
+nodes/rise/node = SubResource("Node_rise")
+nodes/rise/position = Vector2(-600, 200)
+nodes/air-move/node = SubResource("Node_air_move")
+nodes/air-move/position = Vector2(-600, 300)
+nodes/fall/node = SubResource("Node_fall")
+nodes/fall/position = Vector2(-600, 400)
+nodes/land/node = SubResource("Node_land")
+nodes/land/position = Vector2(-600, 500)
+nodes/parry/node = SubResource("Node_parry")
+nodes/parry/position = Vector2(-200, 600)
+nodes/Locomotion/node = SubResource("Locomotion")
+nodes/Locomotion/position = Vector2(-350, 100)
+nodes/LocomotionSpeed/node = SubResource("Speed")
+nodes/LocomotionSpeed/position = Vector2(-100, 100)
+nodes/Parry/node = SubResource("Parry")
+nodes/Parry/position = Vector2(150, 100)
+node_connections = ["Locomotion", 0, "idle", "Locomotion", 1, "run", "Locomotion", 2, "rise", "Locomotion", 3, "air-move", "Locomotion", 4, "fall", "Locomotion", 5, "land", "LocomotionSpeed", 0, "Locomotion", "Parry", 0, "LocomotionSpeed", "Parry", 1, "parry", "output", 0, "Parry"]
+
+[node name="PlayerVisual" type="Node2D"]
+
+[node name="Lower" type="Sprite2D" parent="."]
+centered = false
+offset = Vector2(-48, -80)
+
+[node name="Upper" type="Sprite2D" parent="."]
+centered = false
+offset = Vector2(-48, -80)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {&"": ExtResource("Library")}
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource("Tree")
+anim_player = NodePath("../AnimationPlayer")
+active = true
+parameters/LocomotionSpeed/scale = 1.0

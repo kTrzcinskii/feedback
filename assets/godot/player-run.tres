@@ -1,0 +1,76 @@
+[gd_resource type="SpriteFrames" load_steps=10 format=3]
+
+[ext_resource type="Texture2D" path="../sheets/player-run.svg" id="1_sheet"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0"]
+atlas = ExtResource("1_sheet")
+region = Rect2(0, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1"]
+atlas = ExtResource("1_sheet")
+region = Rect2(96, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2"]
+atlas = ExtResource("1_sheet")
+region = Rect2(192, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3"]
+atlas = ExtResource("1_sheet")
+region = Rect2(288, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4"]
+atlas = ExtResource("1_sheet")
+region = Rect2(384, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5"]
+atlas = ExtResource("1_sheet")
+region = Rect2(480, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6"]
+atlas = ExtResource("1_sheet")
+region = Rect2(576, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7"]
+atlas = ExtResource("1_sheet")
+region = Rect2(672, 0, 96, 96)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_0")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_1")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_2")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_3")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_4")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_5")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_6")
+}, {
+"duration": 0.8,
+"texture": SubResource("AtlasTexture_7")
+}],
+"loop": true,
+"name": &"run",
+"speed": 10.0
+}]
+metadata/pipeline_anchor = Vector2(48, 80)
