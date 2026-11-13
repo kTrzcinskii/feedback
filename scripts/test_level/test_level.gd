@@ -1,9 +1,6 @@
 class_name TestLevel
 extends Node2D
 
-const PLATFORM_GROUND: SpriteFrames = preload("res://assets/godot/platform-ground.tres")
-const FOUNDATION_TEXTURE: Texture2D = preload("res://assets/environment/foundation.svg")
-const HALL_TEXTURE: Texture2D = preload("res://assets/environment/training-hall.svg")
 
 @export var fall_limit_y: float = 360.0
 @export var death_reset_delay: float = 0.35
@@ -23,89 +20,11 @@ func _ready() -> void:
 	elif player != null:
 		_initial_spawn_pos = player.global_position
 
-	_setup_backdrop()
-	_setup_geometry()
-	_setup_level_fixtures()
 	_setup_hud()
 	_update_hud()
 
 	if player != null:
 		player.player_died.connect(_on_player_died)
-
-
-func _setup_backdrop() -> void:
-	var hall := Sprite2D.new()
-	hall.name = "TrainingHall"
-	hall.texture = HALL_TEXTURE
-	hall.centered = false
-	hall.position = Vector2(-768, -768)
-	hall.region_enabled = true
-	hall.region_rect = Rect2(0, 0, 3072, 768)
-	hall.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
-	hall.z_index = -10
-	hall.modulate = Color(0.76, 0.80, 0.85)
-	add_child(hall)
-
-
-func _setup_geometry() -> void:
-	_create_floor("Ground", Rect2(-576, 0, 1344, 384))
-	_create_floor("LandingGround", Rect2(960, 0, 864, 384))
-	_create_floor("TrenchFloor", Rect2(768, 160, 192, 224))
-
-
-	_add_room_label(Vector2(-512, -400), "01 / IMPACT ALCOVE")
-	_add_room_label(Vector2(128, -400), "02 / ASCENT")
-	_add_room_label(Vector2(792, 208), "SPIKE TRENCH")
-	_add_room_label(Vector2(1320, -240), "03 / PROJECTILE RANGE")
-
-
-func _create_floor(p_name: String, bounds: Rect2) -> void:
-	var floor_body := ParryableSurface.new()
-	floor_body.name = p_name
-	floor_body.position = bounds.position
-	floor_body.restitution = 0.45
-	add_child(floor_body)
-
-	var collision := CollisionShape2D.new()
-	var shape := RectangleShape2D.new()
-	shape.size = bounds.size
-	collision.shape = shape
-	collision.position = bounds.size * 0.5
-	floor_body.add_child(collision)
-
-	var foundation := TextureRect.new()
-	foundation.texture = FOUNDATION_TEXTURE
-	foundation.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
-	foundation.stretch_mode = TextureRect.STRETCH_TILE
-	foundation.position.y = 20
-	foundation.size = bounds.size - Vector2(0, 20)
-	foundation.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	floor_body.add_child(foundation)
-
-	for i in range(int(bounds.size.x / 96)):
-		var tile := Sprite2D.new()
-		tile.texture = PLATFORM_GROUND.get_frame_texture(&"ground", i % 4)
-		tile.centered = false
-		tile.position.x = i * 96
-		floor_body.add_child(tile)
-
-
-func _add_room_label(at: Vector2, text: String) -> void:
-	var label := Label.new()
-	label.position = at
-	label.text = text
-	label.add_theme_font_size_override("font_size", 13)
-	label.add_theme_color_override("font_color", Color("7e8e9e"))
-	add_child(label)
-
-
-func _setup_level_fixtures() -> void:
-	for i in range(2):
-		var spikes := LethalSpikesHazard.new()
-		spikes.name = "SpikesHazard%d" % i
-		spikes.position = Vector2(816 + i * 96, 112)
-		spikes.hit_radius = 32.0
-		add_child(spikes)
 
 
 func _setup_hud() -> void:

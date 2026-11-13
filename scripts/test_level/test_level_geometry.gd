@@ -137,7 +137,7 @@ func test_one_way_platforms(level: TestLevel, player: PlayerCharacter) -> void:
 		"TrenchBridge", "LandingPlatform", "ReturnStep", "AngledSurface", "CeilingPlatform"
 	]
 	for plat_name in platform_names:
-		var surface: ParryableSurface = level.get_node_or_null(plat_name) as ParryableSurface
+		var surface: ParryableSurface = level.get_node_or_null("Platforms/" + plat_name) as ParryableSurface
 		check(surface != null, "Platform %s exists in test level" % plat_name)
 		if surface != null:
 			var col: CollisionShape2D = surface.get_node_or_null("CollisionShape2D") as CollisionShape2D
@@ -145,7 +145,7 @@ func test_one_way_platforms(level: TestLevel, player: PlayerCharacter) -> void:
 
 	# Verify walls are not one-way
 	for wall_name in ["BounceWallLeft", "EndWall"]:
-		var wall: ParryableSurface = level.get_node_or_null(wall_name) as ParryableSurface
+		var wall: ParryableSurface = level.get_node_or_null("Walls/" + wall_name) as ParryableSurface
 		if wall != null:
 			var col: CollisionShape2D = wall.get_node_or_null("CollisionShape2D") as CollisionShape2D
 			check(col != null and not col.one_way_collision, "Wall %s remains solid (not one-way)" % wall_name)

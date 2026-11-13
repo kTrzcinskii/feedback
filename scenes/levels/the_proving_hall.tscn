@@ -9,6 +9,10 @@
 [ext_resource type="PackedScene" path="res://scenes/fixtures/switch.tscn" id="switch"]
 [ext_resource type="PackedScene" path="res://scenes/terrain/wall.tscn" id="wall"]
 
+[ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="floor"]
+[ext_resource type="PackedScene" path="res://scenes/terrain/background.tscn" id="background"]
+[ext_resource type="PackedScene" path="res://scenes/fixtures/spikes.tscn" id="spikes"]
+
 [node name="TheProvingHall" type="Node2D" unique_id=911653244]
 script = ExtResource("2_tlevel")
 
@@ -111,5 +115,68 @@ position = Vector2(1844, -96)
 size = Vector2(40, 960)
 restitution = 0.55
 impulse_multiplier = 1.1
+
+
+
+[node name="Floors" type="Node2D" parent="."]
+
+[node name="Decoration" type="Node2D" parent="."]
+
+[node name="Hazards" type="Node2D" parent="."]
+
+[node name="Ground" parent="Floors" instance=ExtResource("floor")]
+position = Vector2(-576, 0)
+size = Vector2(1344, 384)
+
+[node name="LandingGround" parent="Floors" instance=ExtResource("floor")]
+position = Vector2(960, 0)
+size = Vector2(864, 384)
+
+[node name="TrenchFloor" parent="Floors" instance=ExtResource("floor")]
+position = Vector2(768, 160)
+size = Vector2(192, 224)
+
+[node name="TrainingHall" parent="Decoration" instance=ExtResource("background")]
+position = Vector2(-768, -768)
+
+[node name="SpikesHazard0" parent="Hazards" instance=ExtResource("spikes")]
+position = Vector2(816, 112)
+hit_radius = 32.0
+
+[node name="SpikesHazard1" parent="Hazards" instance=ExtResource("spikes")]
+position = Vector2(912, 112)
+hit_radius = 32.0
+
+[node name="ImpactLabel" type="Label" parent="Decoration"]
+offset_left = -512.0
+offset_top = -400.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.494, 0.557, 0.620, 1)
+theme_override_font_sizes/font_size = 13
+text = "01 / IMPACT ALCOVE"
+
+[node name="AscentLabel" type="Label" parent="Decoration"]
+offset_left = 128.0
+offset_top = -400.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.494, 0.557, 0.620, 1)
+theme_override_font_sizes/font_size = 13
+text = "02 / ASCENT"
+
+[node name="TrenchLabel" type="Label" parent="Decoration"]
+offset_left = 792.0
+offset_top = 208.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.494, 0.557, 0.620, 1)
+theme_override_font_sizes/font_size = 13
+text = "SPIKE TRENCH"
+
+[node name="RangeLabel" type="Label" parent="Decoration"]
+offset_left = 1320.0
+offset_top = -240.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.494, 0.557, 0.620, 1)
+theme_override_font_sizes/font_size = 13
+text = "03 / PROJECTILE RANGE"
 
 [editable path="SentinelEmitter"]
