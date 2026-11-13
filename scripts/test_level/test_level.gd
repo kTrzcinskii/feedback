@@ -3,9 +3,7 @@ extends Node2D
 
 const PLATFORM_GROUND: SpriteFrames = preload("res://assets/godot/platform-ground.tres")
 const FOUNDATION_TEXTURE: Texture2D = preload("res://assets/environment/foundation.svg")
-const LEDGE_TEXTURE: Texture2D = preload("res://assets/environment/training-ledge.svg")
 const HALL_TEXTURE: Texture2D = preload("res://assets/environment/training-hall.svg")
-const WALL_TEXTURE: Texture2D = preload("res://assets/environment/training-wall.svg")
 
 @export var fall_limit_y: float = 360.0
 @export var death_reset_delay: float = 0.35
@@ -53,19 +51,7 @@ func _setup_geometry() -> void:
 	_create_floor("Ground", Rect2(-576, 0, 1344, 384))
 	_create_floor("LandingGround", Rect2(960, 0, 864, 384))
 	_create_floor("TrenchFloor", Rect2(768, 160, 192, 224))
-	_create_surface("BounceWallLeft", Vector2(-596, -96), Vector2(40, 960), 0.0, 0.55, 1.1, false)
-	_create_surface("EndWall", Vector2(1844, -96), Vector2(40, 960), 0.0, 0.55, 1.1, false)
 
-	# 72px rises stay comfortably inside the current controller's 105px jump arc.
-	_create_surface("LowPlatform", Vector2(200, -58), Vector2(160, 28), 0.0, 0.45, 1.0, true)
-	_create_surface("MiddlePlatform", Vector2(360, -130), Vector2(160, 28), 0.0, 0.50, 1.05, true)
-	_create_surface("HighPlatform", Vector2(520, -202), Vector2(160, 28), 0.0, 0.50, 1.05, true)
-	_create_surface("SummitPlatform", Vector2(680, -274), Vector2(160, 28), 0.0, 0.50, 1.05, true)
-	_create_surface("TrenchBridge", Vector2(864, -202), Vector2(128, 28), 0.0, 0.50, 1.0, true)
-	_create_surface("LandingPlatform", Vector2(1056, -130), Vector2(192, 28), 0.0, 0.50, 1.0, true)
-	_create_surface("ReturnStep", Vector2(1216, -58), Vector2(128, 28), 0.0, 0.45, 1.0, true)
-	_create_surface("AngledSurface", Vector2(-432, -100), Vector2(144, 28), deg_to_rad(-25.0), 0.65, 1.15, true)
-	_create_surface("CeilingPlatform", Vector2(-384, -290), Vector2(240, 28), 0.0, 0.50, 1.0, true)
 
 	_add_room_label(Vector2(-512, -400), "01 / IMPACT ALCOVE")
 	_add_room_label(Vector2(128, -400), "02 / ASCENT")
@@ -120,51 +106,6 @@ func _setup_level_fixtures() -> void:
 		spikes.position = Vector2(816 + i * 96, 112)
 		spikes.hit_radius = 32.0
 		add_child(spikes)
-
-
-func _create_surface(
-	p_name: String,
-	p_pos: Vector2,
-	p_size: Vector2,
-	p_rot: float,
-	p_restitution: float,
-	p_impulse_mult: float,
-	p_one_way: bool = false
-) -> ParryableSurface:
-	var body := ParryableSurface.new()
-	body.name = p_name
-	body.position = p_pos
-	body.rotation = p_rot
-	body.restitution = p_restitution
-	body.impulse_multiplier = p_impulse_mult
-	body.one_way = p_one_way
-
-	var col := CollisionShape2D.new()
-	col.name = "CollisionShape2D"
-	var rect := RectangleShape2D.new()
-	rect.size = p_size
-	col.shape = rect
-	col.one_way_collision = p_one_way
-	body.add_child(col)
-
-	var visual := NinePatchRect.new()
-	visual.name = "SurfaceVisual"
-	visual.position = -p_size * 0.5
-	visual.size = p_size
-	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if p_size.y > p_size.x:
-		visual.texture = WALL_TEXTURE
-		visual.patch_margin_top = 12
-		visual.patch_margin_bottom = 12
-		visual.axis_stretch_vertical = NinePatchRect.AXIS_STRETCH_MODE_TILE
-	else:
-		visual.texture = LEDGE_TEXTURE
-		visual.patch_margin_left = 18
-		visual.patch_margin_right = 18
-	body.add_child(visual)
-
-	add_child(body)
-	return body
 
 
 func _setup_hud() -> void:

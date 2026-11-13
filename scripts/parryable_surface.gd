@@ -1,3 +1,4 @@
+@tool
 class_name ParryableSurface
 extends StaticBody2D
 
@@ -16,7 +17,12 @@ extends StaticBody2D
 @export var impulse_multiplier: float = 1.0
 
 ## Whether this surface allows one-way collision
-@export var one_way: bool = false
+@export var one_way: bool = false:
+	set(value):
+		one_way = value
+		var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
+		if collision != null:
+			collision.one_way_collision = value
 
 
 func get_surface_impulse_px(default_impulse_ch: float, character_height_px: float) -> float:

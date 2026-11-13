@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/level_block.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/environment/training-ledge.svg" id="2"]
+
+[sub_resource type="RectangleShape2D" id="Shape"]
+resource_local_to_scene = true
+size = Vector2(160, 32)
+
+[node name="Platform" type="StaticBody2D"]
+script = ExtResource("1")
+one_way = true
+size = Vector2(160, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Shape")
+one_way_collision = true
+
+[node name="SurfaceVisual" type="NinePatchRect" parent="."]
+offset_left = -80.0
+offset_top = -16.0
+offset_right = 80.0
+offset_bottom = 16.0
+mouse_filter = 2
+texture = ExtResource("2")
+patch_margin_left = 18
+patch_margin_right = 18
