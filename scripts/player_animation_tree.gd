@@ -1,7 +1,7 @@
 class_name PlayerAnimationTree
 extends AnimationTree
 
-## Locomotion motion states for the transition node in PlayerVisual/AnimationTree.
+## Locomotion motion states for the transition node in PlayerVisual/AnimationTree
 enum Motion {
 	IDLE,
 	RUN,
@@ -39,8 +39,8 @@ static func motion_to_name(motion: Motion) -> StringName:
 	return MOTION_NAMES.get(motion, &"idle")
 
 
-static func name_to_motion(name: StringName) -> Motion:
-	match name:
+static func name_to_motion(motionString: StringName) -> Motion:
+	match motionString:
 		RUN, &"run": return Motion.RUN
 		RISE, &"rise": return Motion.RISE
 		AIR_MOVE, &"air-move": return Motion.AIR_MOVE

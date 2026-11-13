@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://b0moxv4p8cvm" path="res://assets/sheets/player-run.svg" id="5_0dpix"]
 [ext_resource type="Texture2D" uid="uid://eykmdhi537a3" path="res://assets/sheets/player-parry.svg" id="6_2hyy3"]
 [ext_resource type="PackedScene" path="res://assets/godot/player-layered.tscn" id="7_layered"]
+[ext_resource type="Script" path="res://scripts/player_animated_sprite.gd" id="8_sprite"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_irmqu"]
 atlas = ExtResource("2_0lw5n")
@@ -274,6 +275,7 @@ visible = false
 position = Vector2(0, -32)
 sprite_frames = SubResource("SpriteFrames_i4dei")
 animation = &"idle"
+script = ExtResource("8_sprite")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=318003285]
 position = Vector2(0, -30)

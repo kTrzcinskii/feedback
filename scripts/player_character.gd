@@ -34,7 +34,7 @@ var has_parry_momentum: bool = false
 var visual_motion: String = ""
 
 var _impulse_applied_this_tick: bool = false
-var _prev_animation: StringName = &"idle"
+var _prev_animation: StringName = PlayerAnimatedSprite.IDLE
 var _land_visual_timer: float = 0.0
 var _airborne_time: float = 0.0
 var _hurt_visual_active: bool = false
@@ -46,7 +46,7 @@ var sim_jump_just_pressed: bool = false
 
 @onready var player_visual: Node2D = get_node_or_null("PlayerVisual") as Node2D
 @onready var animation_tree: PlayerAnimationTree = get_node_or_null("PlayerVisual/AnimationTree") as PlayerAnimationTree
-@onready var animated_sprite: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D") as AnimatedSprite2D
+@onready var animated_sprite: PlayerAnimatedSprite = get_node_or_null("AnimatedSprite2D") as PlayerAnimatedSprite
 
 
 func _ready() -> void:
@@ -59,7 +59,7 @@ func _ready() -> void:
 		if not animated_sprite.animation_finished.is_connected(_on_animation_finished):
 			animated_sprite.animation_finished.connect(_on_animation_finished)
 		animated_sprite.visible = (player_visual == null)
-		animated_sprite.play(&"idle")
+		animated_sprite.play_idle()
 
 
 func set_visual_motion(next: PlayerAnimationTree.Motion) -> void:
@@ -136,13 +136,58 @@ func _physics_process(delta: float) -> void:
 	if absf(move_x) > 0.1:
 		facing_direction = 1 if move_x > 0.0 else -1
 
-	# 1. Apply movement, jumping, air control and gravity (Sections 3.1 - 3.3)
 	_update_movement_and_gravity(delta, move_x, jump_just_pressed)
 
-	# 2. Check hazards and incoming attacks
 	_resolve_unparried_attacks_and_hazards()
 
-	# 3. Move CharacterBody2D
+	_move_character_body_2D(delta)
+	_resolve_unparried_attacks_and_hazards()
+
+	_update_animations_and_visuals(delta, move_x)
+
+
+func _update_movement_and_gravity(delta: float, input_x: float, jump_just_pressed: bool) -> void:
+	var max_ground_movement_speed: float = ground_movement_speed_ch * character_height
+	var air_acceleration: float = air_control_acceleration_ch * character_height
+	var jump_velocity: float = jump_velocity_ch * character_height
+	var gravity: float = gravity_ch * character_height
+
+	var grounded: bool = (func() -> bool:
+		if not is_on_floor():
+			velocity.y += gravity * delta
+			return false
+		if jump_just_pressed:
+			velocity.y = -jump_velocity
+			return false
+		if not _impulse_applied_this_tick:
+			velocity.y += gravity * delta
+		return true
+	).call()
+
+	# Horizontal movement and air control
+	var has_h_input: bool = absf(input_x) > 0.1
+	var move_sign: float = signf(input_x) if has_h_input else 0.0
+
+	if grounded and not _impulse_applied_this_tick and not has_parry_momentum:
+		# ordinary horizontal movement
+		velocity.x = move_sign * max_ground_movement_speed
+	else:
+		# Airborne movement or parry-generated momentum preservation & adjustment
+		if has_h_input:
+			var target_vx: float = move_sign * max_ground_movement_speed
+			if signf(velocity.x) == move_sign and absf(velocity.x) > max_ground_movement_speed:
+				# Already at max speed in the desired direction
+				pass
+			else:
+				velocity.x = move_toward(velocity.x, target_vx, air_acceleration * delta)
+				# Reset parry momentum
+				if grounded and has_parry_momentum and is_equal_approx(velocity.x, target_vx):
+					has_parry_momentum = false
+		elif not has_parry_momentum and grounded:
+			velocity.x = 0.0
+
+
+func _move_character_body_2D(delta: float) -> void:
 	var was_on_floor: bool = is_on_floor()
 	move_and_slide()
 
@@ -155,52 +200,6 @@ func _physics_process(delta: float) -> void:
 			_land_visual_timer = 0.31
 		_airborne_time = 0.0
 
-	_resolve_unparried_attacks_and_hazards()
-
-	# 4. Update animations
-	_update_animations_and_visuals(delta, move_x)
-
-
-func _update_movement_and_gravity(delta: float, input_x: float, jump_just_pressed: bool) -> void:
-	var max_ground_speed: float = ground_movement_speed_ch * character_height
-	var air_accel: float = air_control_acceleration_ch * character_height
-	var jump_vel: float = jump_velocity_ch * character_height
-	var grav: float = gravity_ch * character_height
-
-	var grounded: bool = is_on_floor()
-
-	# Section 3.2: Jumping and gravity
-	if not grounded:
-		velocity.y += grav * delta
-	elif jump_just_pressed:
-		velocity.y = -jump_vel
-		grounded = false
-	elif not _impulse_applied_this_tick:
-		velocity.y += grav * delta
-
-	# Section 3.1 & 3.3: Horizontal movement and air control
-	var has_h_input: bool = absf(input_x) > 0.1
-	var move_sign: float = signf(input_x) if has_h_input else 0.0
-
-	if grounded and not _impulse_applied_this_tick and not has_parry_momentum:
-		# Section 3.1: Ordinary horizontal movement sets velocity immediately without acceleration/inertia.
-		if not has_h_input:
-			velocity.x = 0.0
-		else:
-			velocity.x = move_sign * max_ground_speed
-	else:
-		# Section 3.1 & 3.3: Airborne movement or parry-generated momentum preservation & adjustment
-		if has_h_input:
-			var target_vx: float = move_sign * max_ground_speed
-			if signf(velocity.x) == move_sign and absf(velocity.x) > max_ground_speed:
-				pass
-			else:
-				velocity.x = move_toward(velocity.x, target_vx, air_accel * delta)
-				if grounded and has_parry_momentum and is_equal_approx(velocity.x, target_vx):
-					has_parry_momentum = false
-		elif not has_parry_momentum and grounded:
-			velocity.x = 0.0
-
 
 func _resolve_unparried_attacks_and_hazards() -> void:
 	if is_dead or get_tree() == null:
@@ -208,13 +207,13 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 
 	var origin: Vector2 = get_parry_origin_global()
 
-	# Section 3.6: Instant-death hazards (kill immediately regardless of remaining HP or invulnerability)
-	# and ordinary environmental hazards.
+	# Instant-death and ordinary hazards
 	for node in get_tree().get_nodes_in_group("lethal_hazards"):
 		if not is_instance_valid(node) or not (node is Node2D):
 			continue
 		var hazard := node as Node2D
-		var h_center: Vector2 = hazard.call("get_hazard_center_global") if hazard.has_method("get_hazard_center_global") else hazard.global_position
+		var h_center: Vector2 = hazard.call("get_hazard_center_global") if hazard.has_method(
+				"get_hazard_center_global") else hazard.global_position
 		var h_radius: float = float(hazard.call("get_hit_radius")) if hazard.has_method("get_hit_radius") else 22.0
 		if origin.distance_to(h_center) <= (hurtbox_radius + h_radius):
 			var instant: bool = bool(hazard.get("is_instant_death")) if ("is_instant_death" in hazard) else true
@@ -226,7 +225,7 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 			if is_dead:
 				return
 
-	# Section 3.6: Ordinary damage from un-parried enemy attacks and projectiles
+	# Damage from un-parried enemy attacks and projectiles
 	for node in get_tree().get_nodes_in_group("parryable_attacks"):
 		if not is_instance_valid(node) or not (node is Node2D) or node.is_queued_for_deletion():
 			continue
@@ -235,7 +234,8 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 			continue
 
 		var hit_radius: float = float(attack.call("get_hit_radius")) if attack.has_method("get_hit_radius") else 12.0
-		var start_pos: Vector2 = attack.get("prev_global_position") if ("prev_global_position" in attack) else attack.global_position
+		var start_pos: Vector2 = attack.get(
+				"prev_global_position") if ("prev_global_position" in attack) else attack.global_position
 		var end_pos: Vector2 = attack.global_position
 		var dist: float = Geometry2D.get_closest_point_to_segment(origin, start_pos, end_pos).distance_to(origin)
 
@@ -246,14 +246,15 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 			if is_dead:
 				return
 
-	# Section 3.6: Ordinary damage from contact with an enemy body
+	# Damage from contact with an enemy body
 	for node in get_tree().get_nodes_in_group("enemies"):
 		if not is_instance_valid(node) or not (node is Node2D):
 			continue
 		if node.has_method("is_defeated") and bool(node.call("is_defeated")):
 			continue
 		var enemy := node as Node2D
-		var e_center: Vector2 = enemy.call("get_center_global") if enemy.has_method("get_center_global") else (enemy.global_position + Vector2(0, -32))
+		var e_center: Vector2 = enemy.call("get_center_global") if enemy.has_method(
+				"get_center_global") else (enemy.global_position + Vector2(0, -32))
 		var e_radius: float = float(enemy.call("get_hit_radius")) if enemy.has_method("get_hit_radius") else 26.0
 		if origin.distance_to(e_center) <= (hurtbox_radius + e_radius):
 			take_damage(1, enemy, false)
@@ -261,13 +262,13 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 				return
 
 
-func instant_kill(source: Object = null) -> void:
+func instant_kill(source: Object=null) -> void:
 	if is_dead:
 		return
 	take_damage(maxi(hp, max_hp), source, true)
 
 
-func take_damage(amount: int, source: Object = null, ignore_invulnerability: bool = false) -> void:
+func take_damage(amount: int, source: Object=null, ignore_invulnerability: bool=false) -> void:
 	if is_dead or amount <= 0:
 		return
 	if not ignore_invulnerability and is_invulnerable():
@@ -283,15 +284,15 @@ func take_damage(amount: int, source: Object = null, ignore_invulnerability: boo
 		is_dead = true
 		invulnerability_timer = 0.0
 		if animated_sprite != null:
-			animated_sprite.play(&"hurt")
+			animated_sprite.play_hurt()
 		player_died.emit(source)
 	else:
-		# Section 3.6: After receiving non-lethal damage, the player becomes temporarily invulnerable (0.75 s).
+		# Temporary invulnerability
 		invulnerability_timer = invulnerability_duration
 		if animated_sprite != null:
-			if animated_sprite.animation != &"hurt":
+			if not animated_sprite.is_hurt():
 				_prev_animation = animated_sprite.animation
-			animated_sprite.play(&"hurt")
+			animated_sprite.play_hurt()
 
 
 func reset_player_state(spawn_global_position: Vector2) -> void:
@@ -320,20 +321,20 @@ func reset_player_state(spawn_global_position: Vector2) -> void:
 		animated_sprite.visible = (player_visual == null)
 		animated_sprite.flip_h = false
 		animated_sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
-		animated_sprite.play(&"idle")
+		animated_sprite.play_idle()
 
 
 func _on_animation_finished() -> void:
 	if animated_sprite == null or is_dead:
 		return
 	var current_anim: StringName = animated_sprite.animation
-	if current_anim == &"hurt":
+	if current_anim == PlayerAnimatedSprite.HURT:
 		_hurt_visual_active = false
 		if player_visual != null:
 			player_visual.visible = true
 			animated_sprite.visible = false
 		animated_sprite.play(_prev_animation)
-	elif current_anim == &"jump":
+	elif current_anim == PlayerAnimatedSprite.JUMP:
 		animated_sprite.play(_prev_animation)
 
 
@@ -381,11 +382,11 @@ func _update_animations_and_visuals(delta: float, input_x: float) -> void:
 
 	animated_sprite.modulate = tint
 	if not is_on_floor():
-		if animated_sprite.animation != &"jump" and animated_sprite.animation != &"hurt":
-			animated_sprite.play(&"jump")
+		if animated_sprite.animation != PlayerAnimatedSprite.JUMP and animated_sprite.animation != PlayerAnimatedSprite.HURT:
+			animated_sprite.play(PlayerAnimatedSprite.JUMP)
 	elif absf(input_x) > 0.1 or absf(velocity.x) > 5.0:
-		if animated_sprite.animation != &"move" and animated_sprite.animation != &"hurt":
-			animated_sprite.play(&"move")
+		if animated_sprite.animation != PlayerAnimatedSprite.MOVE and animated_sprite.animation != PlayerAnimatedSprite.HURT:
+			animated_sprite.play(PlayerAnimatedSprite.MOVE)
 	else:
-		if animated_sprite.animation != &"idle" and animated_sprite.animation != &"hurt":
-			animated_sprite.play(&"idle")
+		if animated_sprite.animation != PlayerAnimatedSprite.IDLE and animated_sprite.animation != PlayerAnimatedSprite.HURT:
+			animated_sprite.play_idle()
