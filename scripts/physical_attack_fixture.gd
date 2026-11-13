@@ -1,3 +1,4 @@
+@tool
 class_name PhysicalAttackFixture
 extends Area2D
 
@@ -29,6 +30,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		queue_redraw()
+		return
 	if not auto_cycle and phase == Phase.IDLE:
 		return
 

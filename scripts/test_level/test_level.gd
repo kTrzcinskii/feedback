@@ -114,38 +114,6 @@ func _add_room_label(at: Vector2, text: String) -> void:
 
 
 func _setup_level_fixtures() -> void:
-	if get_node_or_null("PhysicalFixture") == null:
-		var phys := PhysicalAttackFixture.new()
-		phys.name = "PhysicalFixture"
-		phys.position = Vector2(-300, -44)
-		phys.impulse_direction = Vector2(0.65, -0.76)
-		add_child(phys)
-
-	var door_node: EnvDoor = get_node_or_null("PuzzleDoor") as EnvDoor
-	if door_node == null:
-		door_node = EnvDoor.new()
-		door_node.name = "PuzzleDoor"
-		door_node.position = Vector2(1760, -48)
-		add_child(door_node)
-
-	var switch_node: EnvSwitch = get_node_or_null("PuzzleSwitch") as EnvSwitch
-	if switch_node == null:
-		switch_node = EnvSwitch.new()
-		switch_node.name = "PuzzleSwitch"
-		switch_node.position = Vector2(1680, -48)
-		add_child(switch_node)
-		switch_node.linked_door = switch_node.get_path_to(door_node)
-
-	if get_node_or_null("SentinelEmitter") == null:
-		var emitter := ProjectileEmitter.new()
-		emitter.name = "SentinelEmitter"
-		emitter.position = Vector2(1344, 0)
-		emitter.fire_direction = Vector2.RIGHT
-		emitter.projectile_speed = 320.0
-		emitter.fire_interval = 2.0
-		emitter.respawn_after_defeat_delay = 3.0
-		add_child(emitter)
-
 	for i in range(2):
 		var spikes := LethalSpikesHazard.new()
 		spikes.name = "SpikesHazard%d" % i
