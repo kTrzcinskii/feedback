@@ -240,7 +240,7 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 		var dist: float = Geometry2D.get_closest_point_to_segment(origin, start_pos, end_pos).distance_to(origin)
 
 		if dist <= (hurtbox_radius + hit_radius):
-			if attack is ParryProjectile:
+			if attack is ParryableProjectile:
 				attack.queue_free()
 			take_damage(1, attack, false)
 			if is_dead:

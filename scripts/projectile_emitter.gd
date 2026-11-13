@@ -67,7 +67,7 @@ func _physics_process(delta: float) -> void:
 		fire_projectile()
 
 
-func fire_projectile() -> ParryProjectile:
+func fire_projectile() -> ParryableProjectile:
 	if _defeated:
 		return null
 	if _sprite != null:
@@ -75,7 +75,7 @@ func fire_projectile() -> ParryProjectile:
 		_sprite.sprite_frames = SENTINEL_SHOOT
 		_sprite.play(&"shoot")
 
-	var proj := ParryProjectile.new()
+	var proj := ParryableProjectile.new()
 	var parent_node: Node = get_parent() if get_parent() != null else self
 	parent_node.add_child(proj)
 	var dir_norm: Vector2 = fire_direction.normalized() if fire_direction.length_squared() > 1e-6 else Vector2.LEFT
@@ -96,7 +96,7 @@ func is_defeated() -> bool:
 	return _defeated
 
 
-func on_hit_by_reflected_projectile(_projectile: ParryProjectile) -> void:
+func on_hit_by_reflected_projectile(_projectile: ParryableProjectile) -> void:
 	if not can_be_defeated or _defeated:
 		return
 	_defeated = true

@@ -1,4 +1,4 @@
-class_name ParryProjectile
+class_name ParryableProjectile
 extends Area2D
 
 const PROJECTILE_FRAMES: SpriteFrames = preload("res://assets/godot/projectile-fly.tres")

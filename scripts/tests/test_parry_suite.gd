@@ -100,7 +100,7 @@ func _test_damage_invulnerability_and_instant_death(player: PlayerCharacter, lev
 	_assert_true(player.hp == player.max_hp and player.max_hp >= 2, "Player starts at full HP (%d)" % player.max_hp)
 
 	# Non-lethal damage from projectile grants 0.75s invulnerability
-	var proj := ParryProjectile.new()
+	var proj := ParryableProjectile.new()
 	level.add_child(proj)
 	proj.configure(player.get_parry_origin_global(), Vector2.LEFT, 300.0)
 	player._physics_process(0.016)

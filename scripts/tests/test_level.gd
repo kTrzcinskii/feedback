@@ -74,7 +74,7 @@ func _setup_geometry() -> void:
 
 
 func _create_floor(p_name: String, bounds: Rect2) -> void:
-	var floor_body := ParrySurface.new()
+	var floor_body := ParryableSurface.new()
 	floor_body.name = p_name
 	floor_body.position = bounds.position
 	floor_body.restitution = 0.45
@@ -161,8 +161,8 @@ func _create_surface(
 	p_rot: float,
 	p_restitution: float,
 	p_impulse_mult: float
-) -> ParrySurface:
-	var body := ParrySurface.new()
+) -> ParryableSurface:
+	var body := ParryableSurface.new()
 	body.name = p_name
 	body.position = p_pos
 	body.rotation = p_rot

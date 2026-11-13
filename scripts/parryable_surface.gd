@@ -1,14 +1,18 @@
-class_name ParrySurface
+class_name ParryableSurface
 extends StaticBody2D
 
-## Coefficient of restitution 'e' used in v_reflected = v - (1 + e) * dot(v, n) * n (Section 3.5).
+## Coefficient of restitution[br]
+## 'e' in the formula
+## [codeblock]
+## v_reflected = v - (1 + e) * dot(v, n) * n
+## [/codeblock]
 @export var restitution: float = 0.45
 
-## Optional surface-specific parry impulse magnitude 'J' in CH/s (Section 3.5).
-## When < 0.0, falls back to the player's surface_parry_impulse_ch.
+## Optional surface-specific parry impulse magnitude 'J' in CH/s
+## When < 0.0, falls back to the player's parry impulse
 @export var surface_impulse_ch: float = -1.0
 
-## Multiplier applied to the surface parry impulse 'J' on this surface.
+## Multiplier applied to the surface parry impulse 'J' on this surface
 @export var impulse_multiplier: float = 1.0
 
 

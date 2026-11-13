@@ -38,7 +38,7 @@ func get_hit_radius() -> float:
 
 ## Only reflected projectiles activate the switch, and only once until
 ## reset
-func on_hit_by_projectile(projectile: ParryProjectile) -> void:
+func on_hit_by_projectile(projectile: ParryableProjectile) -> void:
 	if projectile == null or not projectile.is_reflected:
 		return
 	if is_activated:
