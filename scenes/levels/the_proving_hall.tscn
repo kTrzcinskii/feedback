@@ -1,11 +1,14 @@
 [gd_scene format=3 uid="uid://f26hh4k5hprj"]
 
+[ext_resource type="PackedScene" uid="uid://bjrihl1iy3ey8" path="res://scenes/character.tscn" id="1_dojpo"]
+[ext_resource type="Script" uid="uid://cb4u21dhutnsp" path="res://scripts/levels/test_level.gd" id="2_tlevel"]
 [ext_resource type="PackedScene" path="res://scenes/terrain/background.tscn" id="background"]
 [ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="floor"]
 [ext_resource type="PackedScene" uid="uid://xd4jpyirp3pd" path="res://scenes/terrain/platform.tscn" id="platform"]
 [ext_resource type="PackedScene" uid="uid://eema2euvy553" path="res://scenes/terrain/wall.tscn" id="wall"]
 
 [node name="TheProvingHall" type="Node2D" unique_id=911653244]
+script = ExtResource("2_tlevel")
 
 [node name="Decoration" type="Node2D" parent="." unique_id=1122517976]
 
@@ -121,6 +124,15 @@ restitution = 0.5
 
 [node name="SpawnPoint" type="Marker2D" parent="." unique_id=401201111]
 
-[node name="PreviewCamera" type="Camera2D" parent="."]
-position = Vector2(624, -160)
-zoom = Vector2(0.5, 0.5)
+[node name="GameManager" type="Node" parent="." unique_id=991180058]
+
+[node name="CharacterBody2D" parent="." unique_id=793689480 instance=ExtResource("1_dojpo")]
+
+[node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=1287858080]
+position = Vector2(40, -160)
+zoom = Vector2(0.95, 0.95)
+limit_left = -616
+limit_top = -576
+limit_right = 1864
+limit_bottom = 320
+
