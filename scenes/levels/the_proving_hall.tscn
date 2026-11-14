@@ -1,0 +1,138 @@
+[gd_scene format=3 uid="uid://f26hh4k5hprj"]
+
+[ext_resource type="PackedScene" uid="uid://bjrihl1iy3ey8" path="res://scenes/character.tscn" id="1_dojpo"]
+[ext_resource type="Script" uid="uid://cb4u21dhutnsp" path="res://scripts/levels/test_level.gd" id="2_tlevel"]
+[ext_resource type="PackedScene" path="res://scenes/terrain/background.tscn" id="background"]
+[ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="floor"]
+[ext_resource type="PackedScene" uid="uid://xd4jpyirp3pd" path="res://scenes/terrain/platform.tscn" id="platform"]
+[ext_resource type="PackedScene" uid="uid://eema2euvy553" path="res://scenes/terrain/wall.tscn" id="wall"]
+
+[node name="TheProvingHall" type="Node2D" unique_id=911653244]
+script = ExtResource("2_tlevel")
+
+[node name="Decoration" type="Node2D" parent="." unique_id=1122517976]
+
+[node name="TrainingHall" parent="Decoration" unique_id=1953724425 instance=ExtResource("background")]
+z_index = -15
+position = Vector2(-768, -768)
+
+[node name="ImpactLabel" type="Label" parent="Decoration" unique_id=834312762]
+offset_left = -512.0
+offset_top = -400.0
+offset_right = -374.0
+offset_bottom = -381.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "01 / IMPACT ALCOVE"
+
+[node name="AscentLabel" type="Label" parent="Decoration" unique_id=1191596520]
+offset_left = 128.0
+offset_top = -400.0
+offset_right = 204.0
+offset_bottom = -382.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "02 / ASCENT"
+
+[node name="RangeLabel" type="Label" parent="Decoration" unique_id=294927792]
+offset_left = 1320.0
+offset_top = -240.0
+offset_right = 1466.0
+offset_bottom = -220.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "03 / PROJECTILE RANGE"
+
+[node name="Floors" type="Node2D" parent="." unique_id=170461907]
+
+[node name="Ground" parent="Floors" unique_id=2054912303 instance=ExtResource("floor")]
+position = Vector2(-576, 0)
+size = Vector2(1344, 384)
+
+[node name="LandingGround" parent="Floors" unique_id=621028223 instance=ExtResource("floor")]
+position = Vector2(960, 0)
+size = Vector2(864, 384)
+
+[node name="TrenchFloor" parent="Floors" unique_id=1387407517 instance=ExtResource("floor")]
+position = Vector2(768, 160)
+size = Vector2(192, 224)
+
+[node name="Walls" type="Node" parent="." unique_id=973362009]
+
+[node name="BounceWallLeft" parent="Walls" unique_id=675384839 instance=ExtResource("wall")]
+position = Vector2(-596, -96)
+size = Vector2(40, 960)
+restitution = 0.55
+impulse_multiplier = 1.1
+
+[node name="EndWall" parent="Walls" unique_id=1419194865 instance=ExtResource("wall")]
+position = Vector2(1844, -96)
+size = Vector2(40, 960)
+restitution = 0.55
+impulse_multiplier = 1.1
+
+[node name="Platforms" type="Node" parent="." unique_id=426532977]
+
+[node name="ReturnStep" parent="Platforms" unique_id=643008318 instance=ExtResource("platform")]
+position = Vector2(1216, -58)
+size = Vector2(128, 28)
+
+[node name="AngledSurface" parent="Platforms" unique_id=477952721 instance=ExtResource("platform")]
+position = Vector2(-432, -100)
+rotation = -0.43633235
+scale = Vector2(0.99999994, 0.99999994)
+size = Vector2(144, 28)
+restitution = 0.65
+impulse_multiplier = 1.15
+
+[node name="CeilingPlatform" parent="Platforms" unique_id=324552866 instance=ExtResource("platform")]
+position = Vector2(-384, -290)
+size = Vector2(280, 28)
+restitution = 0.5
+
+[node name="LandingPlatform" parent="Platforms" unique_id=227313272 instance=ExtResource("platform")]
+position = Vector2(1056, -130)
+size = Vector2(192, 28)
+restitution = 0.5
+
+[node name="LowPlatform" parent="Platforms" unique_id=1157873755 instance=ExtResource("platform")]
+position = Vector2(200, -58)
+size = Vector2(160, 28)
+
+[node name="MiddlePlatform" parent="Platforms" unique_id=2102668780 instance=ExtResource("platform")]
+position = Vector2(360, -130)
+size = Vector2(160, 28)
+restitution = 0.5
+impulse_multiplier = 1.05
+
+[node name="HighPlatform" parent="Platforms" unique_id=1223399141 instance=ExtResource("platform")]
+position = Vector2(520, -202)
+size = Vector2(160, 28)
+restitution = 0.5
+impulse_multiplier = 1.05
+
+[node name="SummitPlatform" parent="Platforms" unique_id=360204259 instance=ExtResource("platform")]
+position = Vector2(680, -274)
+size = Vector2(160, 28)
+restitution = 0.5
+impulse_multiplier = 1.05
+
+[node name="TrenchBridge" parent="Platforms" unique_id=93418741 instance=ExtResource("platform")]
+position = Vector2(864, -202)
+size = Vector2(128, 28)
+restitution = 0.5
+
+[node name="SpawnPoint" type="Marker2D" parent="." unique_id=401201111]
+
+[node name="GameManager" type="Node" parent="." unique_id=991180058]
+
+[node name="CharacterBody2D" parent="." unique_id=793689480 instance=ExtResource("1_dojpo")]
+
+[node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=1287858080]
+position = Vector2(40, -160)
+zoom = Vector2(0.95, 0.95)
+limit_left = -616
+limit_top = -576
+limit_right = 1864
+limit_bottom = 320
+
