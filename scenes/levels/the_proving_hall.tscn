@@ -3,8 +3,10 @@
 [ext_resource type="PackedScene" uid="uid://bjrihl1iy3ey8" path="res://scenes/character.tscn" id="1_dojpo"]
 [ext_resource type="Script" uid="uid://cb4u21dhutnsp" path="res://scripts/levels/test_level.gd" id="2_tlevel"]
 [ext_resource type="PackedScene" path="res://scenes/terrain/background.tscn" id="background"]
+[ext_resource type="PackedScene" path="res://scenes/fixtures/door.tscn" id="door"]
 [ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="floor"]
 [ext_resource type="PackedScene" uid="uid://xd4jpyirp3pd" path="res://scenes/terrain/platform.tscn" id="platform"]
+[ext_resource type="PackedScene" path="res://scenes/fixtures/switch.tscn" id="switch"]
 [ext_resource type="PackedScene" uid="uid://eema2euvy553" path="res://scenes/terrain/wall.tscn" id="wall"]
 
 [node name="TheProvingHall" type="Node2D" unique_id=911653244]
@@ -135,4 +137,11 @@ limit_left = -616
 limit_top = -576
 limit_right = 1864
 limit_bottom = 320
+
+[node name="PuzzleDoor" parent="." unique_id=1933627619 instance=ExtResource("door")]
+position = Vector2(1760, -48)
+
+[node name="PuzzleSwitch" parent="." unique_id=2035775495 instance=ExtResource("switch")]
+position = Vector2(1680, -48)
+linked_door = NodePath("../PuzzleDoor")
 
