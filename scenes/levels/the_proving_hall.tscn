@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/terrain/background.tscn" id="background"]
 [ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="floor"]
 [ext_resource type="PackedScene" uid="uid://xd4jpyirp3pd" path="res://scenes/terrain/platform.tscn" id="platform"]
+[ext_resource type="PackedScene" path="res://scenes/fixtures/spikes.tscn" id="spikes"]
 [ext_resource type="PackedScene" uid="uid://eema2euvy553" path="res://scenes/terrain/wall.tscn" id="wall"]
 
 [node name="TheProvingHall" type="Node2D" unique_id=911653244]
@@ -33,6 +34,13 @@ offset_bottom = -382.0
 theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
 theme_override_font_sizes/font_size = 13
 text = "02 / ASCENT"
+
+[node name="TrenchLabel" type="Label" parent="Decoration" unique_id=1857589585]
+offset_left = 792.0
+offset_top = 208.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "SPIKE TRENCH"
 
 [node name="RangeLabel" type="Label" parent="Decoration" unique_id=294927792]
 offset_left = 1320.0
@@ -121,6 +129,16 @@ impulse_multiplier = 1.05
 position = Vector2(864, -202)
 size = Vector2(128, 28)
 restitution = 0.5
+
+[node name="Hazards" type="Node2D" parent="." unique_id=795602953]
+
+[node name="SpikesHazard0" parent="Hazards" unique_id=1955726247 instance=ExtResource("spikes")]
+position = Vector2(816, 112)
+hit_radius = 32.0
+
+[node name="SpikesHazard1" parent="Hazards" unique_id=53314570 instance=ExtResource("spikes")]
+position = Vector2(912, 112)
+hit_radius = 32.0
 
 [node name="SpawnPoint" type="Marker2D" parent="." unique_id=401201111]
 
