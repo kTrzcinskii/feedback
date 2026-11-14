@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=6 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://b2yblrj50ok6a"]
 
-[ext_resource type="Texture2D" path="../sheets/sentinel-hurt.svg" id="1_sheet"]
+[ext_resource type="Texture2D" uid="uid://copbknq704gfa" path="res://assets/sheets/sentinel-hurt.svg" id="1_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1_sheet")
@@ -31,13 +31,13 @@ animations = [{
 "duration": 0.9,
 "texture": SubResource("AtlasTexture_1")
 }, {
-"duration": 1,
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_2")
 }, {
 "duration": 1.2,
 "texture": SubResource("AtlasTexture_3")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hurt",
 "speed": 10.0
 }]

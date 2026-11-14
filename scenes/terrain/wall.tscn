@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://eema2euvy553"]
+
+[ext_resource type="Script" uid="uid://dkhiflh8p6sg8" path="res://scripts/level_block.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://bx6ufreyt16ko" path="res://assets/environment/training-wall.svg" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qvf5k"]
+size = Vector2(48, 192)
+
+[node name="Wall" type="StaticBody2D" unique_id=1442027767]
+script = ExtResource("1")
+size = Vector2(48, 192)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1775566259]
+shape = SubResource("RectangleShape2D_qvf5k")
+
+[node name="SurfaceVisual" type="NinePatchRect" parent="." unique_id=2066862466]
+offset_left = -24.0
+offset_top = -96.0
+offset_right = 24.0
+offset_bottom = 96.0
+texture = ExtResource("2")
+patch_margin_top = 12
+patch_margin_bottom = 12
+axis_stretch_vertical = 1
