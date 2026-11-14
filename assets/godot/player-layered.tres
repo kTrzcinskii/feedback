@@ -1,25 +1,310 @@
-[gd_resource type="AnimationLibrary" load_steps=66 format=3]
+[gd_resource type="AnimationLibrary" format=3 uid="uid://2tveskcewgv0"]
 
-[ext_resource type="Texture2D" path="../sheets/player-upper-idle.svg" id="player_upper_idle"]
-
-[ext_resource type="Texture2D" path="../sheets/player-upper-parry.svg" id="player_upper_parry"]
-
-[ext_resource type="Texture2D" path="../sheets/player-lower-idle.svg" id="player_lower_idle"]
-
-[ext_resource type="Texture2D" path="../sheets/player-lower-run.svg" id="player_lower_run"]
-
-[ext_resource type="Texture2D" path="../sheets/player-lower-rise.svg" id="player_lower_rise"]
-
-[ext_resource type="Texture2D" path="../sheets/player-lower-air-move.svg" id="player_lower_air_move"]
-
-[ext_resource type="Texture2D" path="../sheets/player-lower-fall.svg" id="player_lower_fall"]
-
-[ext_resource type="Texture2D" path="../sheets/player-lower-land.svg" id="player_lower_land"]
+[ext_resource type="Texture2D" uid="uid://bh4ild56xhgev" path="res://assets/sheets/player-lower-air-move.svg" id="player_lower_air_move"]
+[ext_resource type="Texture2D" uid="uid://dh0plirkumlel" path="res://assets/sheets/player-lower-fall.svg" id="player_lower_fall"]
+[ext_resource type="Texture2D" uid="uid://5ki3ngj443ir" path="res://assets/sheets/player-lower-idle.svg" id="player_lower_idle"]
+[ext_resource type="Texture2D" uid="uid://c7oaeyrw1c3fy" path="res://assets/sheets/player-lower-land.svg" id="player_lower_land"]
+[ext_resource type="Texture2D" uid="uid://chjy46uuty2je" path="res://assets/sheets/player-lower-rise.svg" id="player_lower_rise"]
+[ext_resource type="Texture2D" uid="uid://cn0r4jk3jrb6i" path="res://assets/sheets/player-lower-run.svg" id="player_lower_run"]
+[ext_resource type="Texture2D" uid="uid://ckwf5l4245bft" path="res://assets/sheets/player-upper-idle.svg" id="player_upper_idle"]
+[ext_resource type="Texture2D" uid="uid://3kwk3vwafoua" path="res://assets/sheets/player-upper-parry.svg" id="player_upper_parry"]
 
 [sub_resource type="AtlasTexture" id="player_upper_idle_0"]
 atlas = ExtResource("player_upper_idle")
 region = Rect2(0, 0, 96, 96)
 filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_idle_0"]
+atlas = ExtResource("player_lower_idle")
+region = Rect2(0, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="Animation" id="Animation_RESET"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Upper:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("player_upper_idle_0")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Lower:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("player_lower_idle_0")]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Upper:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="AtlasTexture" id="player_lower_air_move_0"]
+atlas = ExtResource("player_lower_air_move")
+region = Rect2(0, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_air_move_1"]
+atlas = ExtResource("player_lower_air_move")
+region = Rect2(96, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_air_move_2"]
+atlas = ExtResource("player_lower_air_move")
+region = Rect2(192, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_air_move_3"]
+atlas = ExtResource("player_lower_air_move")
+region = Rect2(288, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="Animation" id="Animation_air_move"]
+resource_name = "air-move"
+length = 0.4
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Lower:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [SubResource("player_lower_air_move_0"), SubResource("player_lower_air_move_1"), SubResource("player_lower_air_move_2"), SubResource("player_lower_air_move_3")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Upper:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("player_upper_idle_0")]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Upper:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -1), Vector2(0, -2), Vector2(0, -1), Vector2(0, 0)]
+}
+
+[sub_resource type="AtlasTexture" id="player_lower_fall_0"]
+atlas = ExtResource("player_lower_fall")
+region = Rect2(0, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_fall_1"]
+atlas = ExtResource("player_lower_fall")
+region = Rect2(96, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_fall_2"]
+atlas = ExtResource("player_lower_fall")
+region = Rect2(192, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_fall_3"]
+atlas = ExtResource("player_lower_fall")
+region = Rect2(288, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="Animation" id="Animation_fall"]
+resource_name = "fall"
+length = 0.4
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Lower:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [SubResource("player_lower_fall_0"), SubResource("player_lower_fall_1"), SubResource("player_lower_fall_2"), SubResource("player_lower_fall_3")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Upper:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("player_upper_idle_0")]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Upper:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -1), Vector2(0, -2), Vector2(0, -1), Vector2(0, 0)]
+}
+
+[sub_resource type="AtlasTexture" id="player_lower_idle_1"]
+atlas = ExtResource("player_lower_idle")
+region = Rect2(96, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_idle_2"]
+atlas = ExtResource("player_lower_idle")
+region = Rect2(192, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_idle_3"]
+atlas = ExtResource("player_lower_idle")
+region = Rect2(288, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="Animation" id="Animation_idle"]
+resource_name = "idle"
+length = 0.96
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Lower:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.24, 0.48, 0.72),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [SubResource("player_lower_idle_0"), SubResource("player_lower_idle_1"), SubResource("player_lower_idle_2"), SubResource("player_lower_idle_3")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Upper:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("player_upper_idle_0")]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Upper:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.24, 0.48, 0.72, 0.96),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, -1), Vector2(0, -2), Vector2(0, -1), Vector2(0, 0)]
+}
+
+[sub_resource type="AtlasTexture" id="player_lower_land_0"]
+atlas = ExtResource("player_lower_land")
+region = Rect2(0, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_land_1"]
+atlas = ExtResource("player_lower_land")
+region = Rect2(96, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_land_2"]
+atlas = ExtResource("player_lower_land")
+region = Rect2(192, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_land_3"]
+atlas = ExtResource("player_lower_land")
+region = Rect2(288, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_land_4"]
+atlas = ExtResource("player_lower_land")
+region = Rect2(384, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="player_lower_land_5"]
+atlas = ExtResource("player_lower_land")
+region = Rect2(480, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="Animation" id="Animation_land"]
+resource_name = "land"
+length = 0.31
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Lower:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.04, 0.08, 0.12, 0.17, 0.23),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [SubResource("player_lower_land_0"), SubResource("player_lower_land_1"), SubResource("player_lower_land_2"), SubResource("player_lower_land_3"), SubResource("player_lower_land_4"), SubResource("player_lower_land_5")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Upper:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [SubResource("player_upper_idle_0")]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Upper:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.04, 0.08, 0.12, 0.17, 0.23, 0.31),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(0, 2), Vector2(0, 3), Vector2(0, 2), Vector2(0, 1), Vector2(0, 0), Vector2(0, 0)]
+}
 
 [sub_resource type="AtlasTexture" id="player_upper_parry_0"]
 atlas = ExtResource("player_upper_parry")
@@ -74,11 +359,12 @@ filter_clip = true
 [sub_resource type="Animation" id="Animation_parry"]
 resource_name = "parry"
 length = 0.44
-loop_mode = 0
 tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
 tracks/0/path = NodePath("Upper:texture")
 tracks/0/interp = 1
-tracks/0/enabled = true
+tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.03, 0.06, 0.09, 0.11, 0.17, 0.23, 0.27, 0.31, 0.36),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
@@ -86,44 +372,48 @@ tracks/0/keys = {
 "values": [SubResource("player_upper_parry_0"), SubResource("player_upper_parry_1"), SubResource("player_upper_parry_2"), SubResource("player_upper_parry_3"), SubResource("player_upper_parry_4"), SubResource("player_upper_parry_5"), SubResource("player_upper_parry_6"), SubResource("player_upper_parry_7"), SubResource("player_upper_parry_8"), SubResource("player_upper_parry_9")]
 }
 
-[sub_resource type="AtlasTexture" id="player_lower_idle_0"]
-atlas = ExtResource("player_lower_idle")
+[sub_resource type="AtlasTexture" id="player_lower_rise_0"]
+atlas = ExtResource("player_lower_rise")
 region = Rect2(0, 0, 96, 96)
 filter_clip = true
 
-[sub_resource type="AtlasTexture" id="player_lower_idle_1"]
-atlas = ExtResource("player_lower_idle")
+[sub_resource type="AtlasTexture" id="player_lower_rise_1"]
+atlas = ExtResource("player_lower_rise")
 region = Rect2(96, 0, 96, 96)
 filter_clip = true
 
-[sub_resource type="AtlasTexture" id="player_lower_idle_2"]
-atlas = ExtResource("player_lower_idle")
+[sub_resource type="AtlasTexture" id="player_lower_rise_2"]
+atlas = ExtResource("player_lower_rise")
 region = Rect2(192, 0, 96, 96)
 filter_clip = true
 
-[sub_resource type="AtlasTexture" id="player_lower_idle_3"]
-atlas = ExtResource("player_lower_idle")
+[sub_resource type="AtlasTexture" id="player_lower_rise_3"]
+atlas = ExtResource("player_lower_rise")
 region = Rect2(288, 0, 96, 96)
 filter_clip = true
 
-[sub_resource type="Animation" id="Animation_idle"]
-resource_name = "idle"
-length = 0.96
+[sub_resource type="Animation" id="Animation_rise"]
+resource_name = "rise"
+length = 0.4
 loop_mode = 1
 tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
 tracks/0/path = NodePath("Lower:texture")
 tracks/0/interp = 1
-tracks/0/enabled = true
+tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.24, 0.48, 0.72),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [SubResource("player_lower_idle_0"), SubResource("player_lower_idle_1"), SubResource("player_lower_idle_2"), SubResource("player_lower_idle_3")]
+"values": [SubResource("player_lower_rise_0"), SubResource("player_lower_rise_1"), SubResource("player_lower_rise_2"), SubResource("player_lower_rise_3")]
 }
 tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
 tracks/1/path = NodePath("Upper:texture")
 tracks/1/interp = 1
-tracks/1/enabled = true
+tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
@@ -131,11 +421,13 @@ tracks/1/keys = {
 "values": [SubResource("player_upper_idle_0")]
 }
 tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
 tracks/2/path = NodePath("Upper:position")
 tracks/2/interp = 1
-tracks/2/enabled = true
+tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.24, 0.48, 0.72, 0.96),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 0,
 "values": [Vector2(0, 0), Vector2(0, -1), Vector2(0, -2), Vector2(0, -1), Vector2(0, 0)]
@@ -226,9 +518,11 @@ resource_name = "run"
 length = 0.64
 loop_mode = 1
 tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
 tracks/0/path = NodePath("Lower:texture")
 tracks/0/interp = 1
-tracks/0/enabled = true
+tracks/0/loop_wrap = true
 tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
@@ -236,9 +530,11 @@ tracks/0/keys = {
 "values": [SubResource("player_lower_run_0"), SubResource("player_lower_run_1"), SubResource("player_lower_run_2"), SubResource("player_lower_run_3"), SubResource("player_lower_run_4"), SubResource("player_lower_run_5"), SubResource("player_lower_run_6"), SubResource("player_lower_run_7"), SubResource("player_lower_run_8"), SubResource("player_lower_run_9"), SubResource("player_lower_run_10"), SubResource("player_lower_run_11"), SubResource("player_lower_run_12"), SubResource("player_lower_run_13"), SubResource("player_lower_run_14"), SubResource("player_lower_run_15")]
 }
 tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
 tracks/1/path = NodePath("Upper:texture")
 tracks/1/interp = 1
-tracks/1/enabled = true
+tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
@@ -246,9 +542,11 @@ tracks/1/keys = {
 "values": [SubResource("player_upper_idle_0")]
 }
 tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
 tracks/2/path = NodePath("Upper:position")
 tracks/2/interp = 1
-tracks/2/enabled = true
+tracks/2/loop_wrap = true
 tracks/2/keys = {
 "times": PackedFloat32Array(0, 0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
@@ -256,277 +554,14 @@ tracks/2/keys = {
 "values": [Vector2(0, 0), Vector2(0, -0.96), Vector2(0, -1.77), Vector2(0, -2.31), Vector2(0, -2.5), Vector2(0, -2.31), Vector2(0, -1.77), Vector2(0, -0.96), Vector2(0, 0), Vector2(0, -0.96), Vector2(0, -1.77), Vector2(0, -2.31), Vector2(0, -2.5), Vector2(0, -2.31), Vector2(0, -1.77), Vector2(0, -0.96), Vector2(0, 0)]
 }
 
-[sub_resource type="AtlasTexture" id="player_lower_rise_0"]
-atlas = ExtResource("player_lower_rise")
-region = Rect2(0, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_rise_1"]
-atlas = ExtResource("player_lower_rise")
-region = Rect2(96, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_rise_2"]
-atlas = ExtResource("player_lower_rise")
-region = Rect2(192, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_rise_3"]
-atlas = ExtResource("player_lower_rise")
-region = Rect2(288, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="Animation" id="Animation_rise"]
-resource_name = "rise"
-length = 0.4
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/path = NodePath("Lower:texture")
-tracks/0/interp = 1
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [SubResource("player_lower_rise_0"), SubResource("player_lower_rise_1"), SubResource("player_lower_rise_2"), SubResource("player_lower_rise_3")]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("Upper:texture")
-tracks/1/interp = 1
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [SubResource("player_upper_idle_0")]
-}
-tracks/2/type = "value"
-tracks/2/path = NodePath("Upper:position")
-tracks/2/interp = 1
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0, -1), Vector2(0, -2), Vector2(0, -1), Vector2(0, 0)]
-}
-
-[sub_resource type="AtlasTexture" id="player_lower_air_move_0"]
-atlas = ExtResource("player_lower_air_move")
-region = Rect2(0, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_air_move_1"]
-atlas = ExtResource("player_lower_air_move")
-region = Rect2(96, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_air_move_2"]
-atlas = ExtResource("player_lower_air_move")
-region = Rect2(192, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_air_move_3"]
-atlas = ExtResource("player_lower_air_move")
-region = Rect2(288, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="Animation" id="Animation_air_move"]
-resource_name = "air-move"
-length = 0.4
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/path = NodePath("Lower:texture")
-tracks/0/interp = 1
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [SubResource("player_lower_air_move_0"), SubResource("player_lower_air_move_1"), SubResource("player_lower_air_move_2"), SubResource("player_lower_air_move_3")]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("Upper:texture")
-tracks/1/interp = 1
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [SubResource("player_upper_idle_0")]
-}
-tracks/2/type = "value"
-tracks/2/path = NodePath("Upper:position")
-tracks/2/interp = 1
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0, -1), Vector2(0, -2), Vector2(0, -1), Vector2(0, 0)]
-}
-
-[sub_resource type="AtlasTexture" id="player_lower_fall_0"]
-atlas = ExtResource("player_lower_fall")
-region = Rect2(0, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_fall_1"]
-atlas = ExtResource("player_lower_fall")
-region = Rect2(96, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_fall_2"]
-atlas = ExtResource("player_lower_fall")
-region = Rect2(192, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_fall_3"]
-atlas = ExtResource("player_lower_fall")
-region = Rect2(288, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="Animation" id="Animation_fall"]
-resource_name = "fall"
-length = 0.4
-loop_mode = 1
-tracks/0/type = "value"
-tracks/0/path = NodePath("Lower:texture")
-tracks/0/interp = 1
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 1,
-"values": [SubResource("player_lower_fall_0"), SubResource("player_lower_fall_1"), SubResource("player_lower_fall_2"), SubResource("player_lower_fall_3")]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("Upper:texture")
-tracks/1/interp = 1
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [SubResource("player_upper_idle_0")]
-}
-tracks/2/type = "value"
-tracks/2/path = NodePath("Upper:position")
-tracks/2/interp = 1
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0, -1), Vector2(0, -2), Vector2(0, -1), Vector2(0, 0)]
-}
-
-[sub_resource type="AtlasTexture" id="player_lower_land_0"]
-atlas = ExtResource("player_lower_land")
-region = Rect2(0, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_land_1"]
-atlas = ExtResource("player_lower_land")
-region = Rect2(96, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_land_2"]
-atlas = ExtResource("player_lower_land")
-region = Rect2(192, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_land_3"]
-atlas = ExtResource("player_lower_land")
-region = Rect2(288, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_land_4"]
-atlas = ExtResource("player_lower_land")
-region = Rect2(384, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="AtlasTexture" id="player_lower_land_5"]
-atlas = ExtResource("player_lower_land")
-region = Rect2(480, 0, 96, 96)
-filter_clip = true
-
-[sub_resource type="Animation" id="Animation_land"]
-resource_name = "land"
-length = 0.31
-loop_mode = 0
-tracks/0/type = "value"
-tracks/0/path = NodePath("Lower:texture")
-tracks/0/interp = 1
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.04, 0.08, 0.12, 0.17, 0.23),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
-"update": 1,
-"values": [SubResource("player_lower_land_0"), SubResource("player_lower_land_1"), SubResource("player_lower_land_2"), SubResource("player_lower_land_3"), SubResource("player_lower_land_4"), SubResource("player_lower_land_5")]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("Upper:texture")
-tracks/1/interp = 1
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [SubResource("player_upper_idle_0")]
-}
-tracks/2/type = "value"
-tracks/2/path = NodePath("Upper:position")
-tracks/2/interp = 1
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.04, 0.08, 0.12, 0.17, 0.23, 0.31),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(0, 0), Vector2(0, 2), Vector2(0, 3), Vector2(0, 2), Vector2(0, 1), Vector2(0, 0), Vector2(0, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_RESET"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/path = NodePath("Upper:texture")
-tracks/0/interp = 1
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [SubResource("player_upper_idle_0")]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("Lower:texture")
-tracks/1/interp = 1
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [SubResource("player_lower_idle_0")]
-}
-tracks/2/type = "value"
-tracks/2/path = NodePath("Upper:position")
-tracks/2/interp = 1
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0, 0)]
-}
-
 [resource]
 _data = {
-&"parry": SubResource("Animation_parry"),
-&"idle": SubResource("Animation_idle"),
-&"run": SubResource("Animation_run"),
-&"rise": SubResource("Animation_rise"),
+&"RESET": SubResource("Animation_RESET"),
 &"air-move": SubResource("Animation_air_move"),
 &"fall": SubResource("Animation_fall"),
+&"idle": SubResource("Animation_idle"),
 &"land": SubResource("Animation_land"),
-&"RESET": SubResource("Animation_RESET")
+&"parry": SubResource("Animation_parry"),
+&"rise": SubResource("Animation_rise"),
+&"run": SubResource("Animation_run")
 }
