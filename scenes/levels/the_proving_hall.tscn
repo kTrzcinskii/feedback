@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/terrain/background.tscn" id="background"]
 [ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="floor"]
 [ext_resource type="PackedScene" uid="uid://xd4jpyirp3pd" path="res://scenes/terrain/platform.tscn" id="platform"]
+[ext_resource type="PackedScene" path="res://scenes/fixtures/sentry.tscn" id="sentry"]
 [ext_resource type="PackedScene" uid="uid://eema2euvy553" path="res://scenes/terrain/wall.tscn" id="wall"]
 
 [node name="TheProvingHall" type="Node2D" unique_id=911653244]
@@ -136,3 +137,14 @@ limit_top = -576
 limit_right = 1864
 limit_bottom = 320
 
+[node name="SentinelEmitter" parent="." unique_id=1223524168 instance=ExtResource("sentry")]
+position = Vector2(1344, 0)
+fire_interval = 2.0
+projectile_speed = 320.0
+fire_direction = Vector2(1, 0)
+respawn_after_defeat_delay = 3.0
+
+[node name="AnimatedSprite2D" parent="SentinelEmitter" index="0"]
+flip_h = false
+
+[editable path="SentinelEmitter"]

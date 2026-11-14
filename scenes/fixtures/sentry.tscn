@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/projectile_emitter.gd" id="1"]
+[ext_resource type="SpriteFrames" path="res://assets/godot/sentinel-idle.tres" id="2"]
+
+[node name="Sentry" type="Node2D"]
+script = ExtResource("1")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2")
+animation = &"idle"
+centered = false
+offset = Vector2(-48, -80)
+flip_h = true
