@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=6 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://btaa0q7yk122f"]
 
-[ext_resource type="Texture2D" path="../sheets/env-door.svg" id="1_sheet"]
+[ext_resource type="Texture2D" uid="uid://ptnlppai2bdf" path="res://assets/sheets/env-door.svg" id="1_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1_sheet")
@@ -37,7 +37,7 @@ animations = [{
 "duration": 2.2,
 "texture": SubResource("AtlasTexture_3")
 }],
-"loop": false,
+"loop": 0,
 "name": &"door",
 "speed": 10.0
 }]
