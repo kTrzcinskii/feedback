@@ -80,7 +80,7 @@ func _physics_process(delta: float) -> void:
 		if player != null:
 			player.reset_cooldown_on_surface_parry = not player.reset_cooldown_on_surface_parry
 
-	# Section 3.6: Bottomless pits are instant-death hazards that kill the player immediately
+	# Bottomless pits, out of bounds etc. death (y grows down)
 	if player != null and not _reset_pending and player.global_position.y > fall_limit_y:
 		player.instant_kill(self)
 		reset_room()
@@ -125,37 +125,25 @@ func _update_hud() -> void:
 	var state: String = "GROUNDED" if player.is_on_floor() else "AIRBORNE"
 	if player.is_invulnerable():
 		state = "INVULNERABLE  %.2fs" % player.invulnerability_timer
-	_hud_label.text = "HP  %d / %d     •     %s\nVELOCITY   %.0f, %.0f px/s  /  %.1f, %.1f CH/s\nFPS  %d     •     PHYSICS  %d Hz" % [
-		player.hp, player.max_hp, state,
-		player.velocity.x, player.velocity.y, vel_ch.x, vel_ch.y,
-		Engine.get_frames_per_second(), Engine.physics_ticks_per_second,
-	]
-	_hud_label.text += "\nPARRY %s  %.2fs\nAIM %s  LOCK %s\nRANGE %.1f CH  ±%.1f°\nCD RESET: ATTACK %s / SURFACE %s" % [
-		player.get_parry_state_name(), player.parry_timer,
-		_format_dir(player.get_aim_direction_preview()), _format_dir(player.parry_direction),
-		player.parry_hitbox_range_ch, player.parry_angular_coverage_deg,
-		str(player.reset_cooldown_on_attack_parry), str(player.reset_cooldown_on_surface_parry),
-	]
+	_hud_label.text = "\n".join([
+		"HP  %d / %d     •     %s" % [player.hp, player.max_hp, state],
+		"VELOCITY   %.0f, %.0f px/s  /  %.1f, %.1f CH/s" % [
+			player.velocity.x, player.velocity.y, vel_ch.x, vel_ch.y,
+		],
+		"FPS  %d     •     PHYSICS  %d Hz" % [
+			Engine.get_frames_per_second(), Engine.physics_ticks_per_second,
+		],
+		"PARRY %s  %.2fs" % [player.get_parry_state_name(), player.parry_timer],
+		"AIM %s  LOCK %s" % [
+			_format_dir(player.get_aim_direction_preview()), _format_dir(player.parry_direction),
+		],
+		"RANGE %.1f CH  ±%.1f°" % [player.parry_hitbox_range_ch, player.parry_angular_coverage_deg],
+		"CD RESET: ATTACK %s / SURFACE %s" % [
+			str(player.reset_cooldown_on_attack_parry), str(player.reset_cooldown_on_surface_parry),
+		],
+	])
 
 
 static func _format_dir(d: Vector2) -> String:
 	var n: Vector2 = d.normalized()
-	var sx: int = int(roundf(n.x))
-	var sy: int = int(roundf(n.y))
-	if sx == 1 and sy == 0:
-		return "RIGHT (1, 0)"
-	if sx == -1 and sy == 0:
-		return "LEFT (-1, 0)"
-	if sx == 0 and sy == -1:
-		return "UP (0, -1)"
-	if sx == 0 and sy == 1:
-		return "DOWN (0, 1)"
-	if sx == 1 and sy == -1:
-		return "UP-RIGHT (0.71, -0.71)"
-	if sx == -1 and sy == -1:
-		return "UP-LEFT (-0.71, -0.71)"
-	if sx == 1 and sy == 1:
-		return "DOWN-RIGHT (0.71, 0.71)"
-	if sx == -1 and sy == 1:
-		return "DOWN-LEFT (-0.71, 0.71)"
-	return "(%.2f, %.2f)" % [d.x, d.y]
+	return "(%.2f, %.2f)" % [n.x, n.y]

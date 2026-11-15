@@ -13,25 +13,23 @@ enum ParryState {
 	COOLDOWN,
 }
 
-# --- Section 4: Initial tunable parameters ---
 @export_group("Units")
 ## 1.0 Character Height (CH) in pixels
 @export var character_height: float = 64.0
 
+## (TODO: adjust as needed after gameplay tests).
 @export_group("Parry Parameters")
-## Active window duration in seconds (Proposed: 0.20 s).
+## Active window duration in seconds
 @export var parry_active_duration: float = 0.20
-## Cooldown duration in seconds after active window ends (Proposed: 0.20 s).
+## Cooldown duration in seconds after active window ends
 @export var parry_cooldown: float = 0.20
-## Hitbox range in Character Heights (Proposed: 1.0 CH).
+## Hitbox range in Character Heights
 @export var parry_hitbox_range_ch: float = 1.0
-## Angular coverage in degrees from the locked direction (Proposed: ±22.5°).
+## Angular coverage in degrees from the locked direction
 @export var parry_angular_coverage_deg: float = 22.5
-## Section 2.4: A successful parry against an enemy attack resets the parry cooldown,
-## allowing the player to initiate another parry immediately after the current active window ends.
+## Successful parry against an attack resets the cooldown
 @export var reset_cooldown_on_attack_parry: bool = true
-## Section 2.4: A successful environmental surface parry does not reset the cooldown by default
-## (TODO: change after gameplay tests).
+## A successful environmental surface parry does not reset the cooldown
 @export var reset_cooldown_on_surface_parry: bool = false
 
 @export_group("Movement Parameters")
@@ -169,10 +167,10 @@ func _rebuild_parry_sector_polygon() -> void:
 
 func _set_parry_hitbox_enabled(enabled: bool) -> void:
 	if _parry_polygon != null:
-		_parry_polygon.disabled = not enabled
+		_parry_polygon.set_deferred("disabled", not enabled)
 	if _parry_hitbox != null:
-		_parry_hitbox.monitoring = enabled
-		_parry_hitbox.monitorable = enabled
+		_parry_hitbox.set_deferred("monitoring", enabled)
+		_parry_hitbox.set_deferred("monitorable", enabled)
 		_parry_hitbox.rotation = parry_direction.angle()
 
 
@@ -215,9 +213,9 @@ func get_parry_state_name() -> String:
 	return "UNKNOWN"
 
 
-## Samples 8-directional input once when parry starts (Section 2.1).
+## Samples 8-directional input once when parry starts.
 ## Defaults to facing_direction when no directional input is held.
-## Diagonal directions are normalized.
+## Diagonal directions are normalized
 func sample_parry_direction(raw_input: Vector2) -> Vector2:
 	var dx: float = 0.0
 	var dy: float = 0.0
@@ -243,10 +241,13 @@ func _read_movement_input() -> float:
 func _read_parry_direction_input() -> Vector2:
 	if use_simulated_input:
 		return sim_parry_dir if sim_parry_dir.is_finite() else sim_move_dir
-	var left: bool = Input.is_action_pressed("ParryLeft") if InputMap.has_action("ParryLeft") else Input.is_action_pressed("MoveLeft")
-	var right: bool = Input.is_action_pressed("ParryRight") if InputMap.has_action("ParryRight") else Input.is_action_pressed("MoveRight")
+	var left: bool = Input.is_action_pressed("ParryLeft") if InputMap.has_action(
+			"ParryLeft") else Input.is_action_pressed("MoveLeft")
+	var right: bool = Input.is_action_pressed("ParryRight") if InputMap.has_action(
+			"ParryRight") else Input.is_action_pressed("MoveRight")
 	var up: bool = Input.is_action_pressed("ParryUp") if InputMap.has_action("ParryUp") else false
-	var down: bool = Input.is_action_pressed("ParryDown") if InputMap.has_action("ParryDown") else Input.is_action_pressed("Crouch")
+	var down: bool = Input.is_action_pressed("ParryDown") if InputMap.has_action(
+			"ParryDown") else Input.is_action_pressed("Crouch")
 	var x_axis: float = (1.0 if right else 0.0) - (1.0 if left else 0.0)
 	var y_axis: float = (1.0 if down else 0.0) - (1.0 if up else 0.0)
 	return Vector2(x_axis, y_axis)
@@ -281,7 +282,7 @@ func _physics_process(delta: float) -> void:
 	var jump_just_pressed: bool = _read_jump_just_pressed()
 	var parry_pressed: bool = _read_parry_pressed()
 
-	# Update facing direction from horizontal movement input when not locked in an active parry
+	# Update facing direction from horizontal movement when not locked in an active parry
 	if absf(move_x) > 0.1 and parry_state != ParryState.ACTIVE:
 		facing_direction = 1 if move_x > 0.0 else -1
 
@@ -354,10 +355,11 @@ func _move_character_body_2D(delta: float) -> void:
 
 
 func _update_parry_cycle(delta: float, dir_input: Vector2, parry_pressed: bool) -> void:
-	# Advance active window / cooldown timers first
+	# Advance active window / cooldown timers
 	if parry_state == ParryState.ACTIVE:
 		parry_timer -= delta
 		if parry_timer <= 1e-6:
+			# Next physics frame overflow
 			var overflow: float = maxf(0.0, -parry_timer)
 			_end_active_parry_window(overflow)
 	elif parry_state == ParryState.COOLDOWN:
@@ -367,15 +369,12 @@ func _update_parry_cycle(delta: float, dir_input: Vector2, parry_pressed: bool) 
 			parry_state = ParryState.IDLE
 			parry_cooldown_ended.emit()
 
-	# Releasing the parry button clears the release requirement (Section 2.3)
 	if not parry_pressed:
 		_parry_requires_release = false
 
-	# Activate parry only if IDLE, button is pressed, and button was released since last press
 	if parry_state == ParryState.IDLE and parry_pressed and not _parry_requires_release:
 		_start_parry(dir_input)
 
-	# Any press while in IDLE/ACTIVE/COOLDOWN latches _parry_requires_release until released
 	if parry_pressed:
 		_parry_requires_release = true
 
@@ -400,13 +399,11 @@ func _start_parry(dir_input: Vector2) -> void:
 	parry_started.emit(parry_direction, parry_active_duration)
 
 
-func _end_active_parry_window(overflow: float = 0.0) -> void:
+func _end_active_parry_window(overflow: float=0.0) -> void:
 	var was_successful: bool = _parry_succeeded_in_current_window
 	_set_parry_hitbox_enabled(false)
 	parry_window_ended.emit(was_successful)
 
-	# Section 2.4: A successful parry that resets cooldown allows initiating another parry
-	# immediately after the current active window ends without waiting for cooldown.
 	if _cooldown_reset_earned_in_current_window or parry_cooldown <= 1e-6:
 		parry_state = ParryState.IDLE
 		parry_timer = 0.0
@@ -418,7 +415,6 @@ func _end_active_parry_window(overflow: float = 0.0) -> void:
 			parry_timer = 0.0
 			parry_state = ParryState.IDLE
 			parry_cooldown_ended.emit()
-
 
 
 func _resolve_unparried_attacks_and_hazards() -> void:
@@ -482,9 +478,10 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 				return
 
 
-## Checks whether a point or swept segment [seg_start, seg_end] with radius target_radius
-## intersects the directional parry sector (origin, parry_direction, range, ±half_angle).
-func is_segment_in_parry_sector(seg_start: Vector2, seg_end: Vector2, target_radius: float = 0.0) -> bool:
+## Checks whether a point or swept segment [seg_start, seg_end] with
+## radius target_radius intersects the directional parry sector (origin,
+## parry_direction, range, ±half_angle).
+func is_segment_in_parry_sector(seg_start: Vector2, seg_end: Vector2, target_radius: float=0.0) -> bool:
 	var origin: Vector2 = get_parry_origin_global()
 	var range_px: float = get_parry_range_px()
 	var max_dist: float = range_px + target_radius
@@ -492,6 +489,7 @@ func is_segment_in_parry_sector(seg_start: Vector2, seg_end: Vector2, target_rad
 	var dir_norm: Vector2 = parry_direction.normalized() if parry_direction.length_squared() > 1e-6 else Vector2.RIGHT
 
 	var closest_to_origin: Vector2 = Geometry2D.get_closest_point_to_segment(origin, seg_start, seg_end)
+	# TODO: update this to be more elaborate
 	var samples: Array[Vector2] = [
 		seg_start,
 		seg_start.lerp(seg_end, 0.25),
@@ -517,17 +515,19 @@ func is_segment_in_parry_sector(seg_start: Vector2, seg_end: Vector2, target_rad
 		var base_angle: float = dir_norm.angle()
 		var edge_a_end: Vector2 = origin + Vector2.from_angle(base_angle - half_angle) * range_px
 		var edge_b_end: Vector2 = origin + Vector2.from_angle(base_angle + half_angle) * range_px
-		var pts_a: PackedVector2Array = Geometry2D.get_closest_points_between_segments(seg_start, seg_end, origin, edge_a_end)
+		var pts_a: PackedVector2Array = Geometry2D.get_closest_points_between_segments(seg_start, seg_end, origin,
+				edge_a_end)
 		if pts_a.size() >= 2 and pts_a[0].distance_to(pts_a[1]) <= target_radius + 1e-4:
 			return true
-		var pts_b: PackedVector2Array = Geometry2D.get_closest_points_between_segments(seg_start, seg_end, origin, edge_b_end)
+		var pts_b: PackedVector2Array = Geometry2D.get_closest_points_between_segments(seg_start, seg_end, origin,
+				edge_b_end)
 		if pts_b.size() >= 2 and pts_b[0].distance_to(pts_b[1]) <= target_radius + 1e-4:
 			return true
 
 	return false
 
 
-func instant_kill(source: Object = null) -> void:
+func instant_kill(source: Object=null) -> void:
 	if is_dead:
 		return
 	take_damage(maxi(hp, max_hp), source, true)
@@ -657,16 +657,7 @@ func _update_animations_and_visuals(delta: float, input_x: float) -> void:
 
 	animated_sprite.modulate = tint
 	if parry_state == ParryState.ACTIVE:
-		if animated_sprite.animation != PlayerAnimatedSprite.PARRY:
-			animated_sprite.play(PlayerAnimatedSprite.PARRY)
+		animated_sprite.play_parry()
 		return
 
-	if not is_on_floor():
-		if animated_sprite.animation != PlayerAnimatedSprite.JUMP and animated_sprite.animation != PlayerAnimatedSprite.PARRY and animated_sprite.animation != PlayerAnimatedSprite.HURT:
-			animated_sprite.play(PlayerAnimatedSprite.JUMP)
-	elif absf(input_x) > 0.1 or absf(velocity.x) > 5.0:
-		if animated_sprite.animation != PlayerAnimatedSprite.MOVE and animated_sprite.animation != PlayerAnimatedSprite.PARRY and animated_sprite.animation != PlayerAnimatedSprite.HURT:
-			animated_sprite.play(PlayerAnimatedSprite.MOVE)
-	else:
-		if animated_sprite.animation != PlayerAnimatedSprite.IDLE and animated_sprite.animation != PlayerAnimatedSprite.PARRY and animated_sprite.animation != PlayerAnimatedSprite.HURT:
-			animated_sprite.play(PlayerAnimatedSprite.IDLE)
+	animated_sprite.play_locomotion(is_on_floor(), absf(input_x) > 0.1 or absf(velocity.x) > 5.0)

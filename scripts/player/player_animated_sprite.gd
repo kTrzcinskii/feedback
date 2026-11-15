@@ -24,6 +24,23 @@ func play_move() -> void:
 	play(MOVE)
 
 
+func play_parry() -> void:
+	if animation != PARRY:
+		play(PARRY)
+
+
+func play_locomotion(grounded: bool, moving: bool) -> void:
+	if animation == PARRY or animation == HURT:
+		return
+
+	if not grounded:
+		play_if_not(JUMP)
+	elif moving:
+		play_if_not(MOVE)
+	else:
+		play_if_not(IDLE)
+
+
 func is_hurt() -> bool:
 	return animation == HURT
 
