@@ -1,0 +1,65 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="player-layered.tscn" id="Player"]
+
+[sub_resource type="Animation" id="Sequence"]
+resource_name = "combinations"
+length = 4.5
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/path = NodePath("PlayerVisual/AnimationTree:parameters/Locomotion/transition_request")
+tracks/0/interp = 1
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.6, 1.2, 1.6, 2.2, 2.6, 2.91, 3.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": ["idle", "run", "rise", "air-move", "fall", "land", "run", "idle"]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("PlayerVisual/AnimationTree:parameters/Parry/request")
+tracks/1/interp = 1
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.8, 1.7, 2.45),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [1, 1, 1]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("PlayerVisual:position")
+tracks/2/interp = 1
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.6, 1.2, 1.6, 2.2, 2.6, 3.6, 4.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(180, 300), Vector2(180, 300), Vector2(260, 300), Vector2(310, 210), Vector2(400, 210), Vector2(460, 300), Vector2(600, 300), Vector2(600, 300)]
+}
+
+[sub_resource type="AnimationLibrary" id="Library"]
+_data = {&"combinations": SubResource("Sequence")}
+
+[sub_resource type="StyleBoxFlat" id="Floor"]
+bg_color = Color(0.2, 0.25, 0.3, 1)
+
+[node name="Combinations" type="Node2D"]
+
+[node name="Floor" type="Panel" parent="."]
+offset_top = 300.0
+offset_right = 800.0
+offset_bottom = 304.0
+theme_override_styles/panel = SubResource("Floor")
+
+[node name="PlayerVisual" parent="." instance=ExtResource("Player")]
+position = Vector2(180, 300)
+scale = Vector2(2, 2)
+
+[node name="Instructions" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 40.0
+text = "Run + parry / rise / air movement + parry / fall / land during parry / run\nVisual demonstration only: your controller owns movement and combat timing."
+
+[node name="Scenario" type="AnimationPlayer" parent="."]
+libraries = {&"": SubResource("Library")}
+autoplay = "combinations"

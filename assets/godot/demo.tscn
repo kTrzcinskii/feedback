@@ -1,0 +1,304 @@
+[gd_scene load_steps=31 format=3]
+
+[ext_resource type="PackedScene" path="player-idle.tscn" id="1"]
+[ext_resource type="PackedScene" path="player-run.tscn" id="2"]
+[ext_resource type="PackedScene" path="player-jump.tscn" id="3"]
+[ext_resource type="PackedScene" path="player-parry.tscn" id="4"]
+[ext_resource type="PackedScene" path="player-hurt.tscn" id="5"]
+[ext_resource type="PackedScene" path="player-upper-idle.tscn" id="6"]
+[ext_resource type="PackedScene" path="player-upper-parry.tscn" id="7"]
+[ext_resource type="PackedScene" path="player-lower-idle.tscn" id="8"]
+[ext_resource type="PackedScene" path="player-lower-run.tscn" id="9"]
+[ext_resource type="PackedScene" path="player-lower-rise.tscn" id="10"]
+[ext_resource type="PackedScene" path="player-lower-air-move.tscn" id="11"]
+[ext_resource type="PackedScene" path="player-lower-fall.tscn" id="12"]
+[ext_resource type="PackedScene" path="player-lower-land.tscn" id="13"]
+[ext_resource type="PackedScene" path="player-air-parry.tscn" id="14"]
+[ext_resource type="PackedScene" path="player-run-parry.tscn" id="15"]
+[ext_resource type="PackedScene" path="sentinel-idle.tscn" id="16"]
+[ext_resource type="PackedScene" path="sentinel-move.tscn" id="17"]
+[ext_resource type="PackedScene" path="sentinel-shoot.tscn" id="18"]
+[ext_resource type="PackedScene" path="sentinel-hurt.tscn" id="19"]
+[ext_resource type="PackedScene" path="projectile-fly.tscn" id="20"]
+[ext_resource type="PackedScene" path="parry-fx-burst.tscn" id="21"]
+[ext_resource type="PackedScene" path="platform-ground.tscn" id="22"]
+[ext_resource type="PackedScene" path="platform-ledge.tscn" id="23"]
+[ext_resource type="PackedScene" path="platform-bounce.tscn" id="24"]
+[ext_resource type="PackedScene" path="background-wall.tscn" id="25"]
+[ext_resource type="PackedScene" path="background-arch.tscn" id="26"]
+[ext_resource type="PackedScene" path="env-pillar.tscn" id="27"]
+[ext_resource type="PackedScene" path="env-hazard.tscn" id="28"]
+[ext_resource type="PackedScene" path="env-switch.tscn" id="29"]
+[ext_resource type="PackedScene" path="env-door.tscn" id="30"]
+
+[node name="Demo" type="Node2D"]
+
+[node name="Sprite0" parent="." instance=ExtResource("1")]
+position = Vector2(120, 120)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label0" type="Label" parent="."]
+offset_left = 45.0
+offset_top = 145.0
+text = "player-idle"
+
+[node name="Sprite1" parent="." instance=ExtResource("2")]
+position = Vector2(335, 120)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label1" type="Label" parent="."]
+offset_left = 260.0
+offset_top = 145.0
+text = "player-run"
+
+[node name="Sprite2" parent="." instance=ExtResource("3")]
+position = Vector2(550, 120)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label2" type="Label" parent="."]
+offset_left = 475.0
+offset_top = 145.0
+text = "player-jump"
+
+[node name="Sprite3" parent="." instance=ExtResource("4")]
+position = Vector2(765, 120)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label3" type="Label" parent="."]
+offset_left = 690.0
+offset_top = 145.0
+text = "player-parry"
+
+[node name="Sprite4" parent="." instance=ExtResource("5")]
+position = Vector2(980, 120)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label4" type="Label" parent="."]
+offset_left = 905.0
+offset_top = 145.0
+text = "player-hurt"
+
+[node name="Sprite5" parent="." instance=ExtResource("6")]
+position = Vector2(120, 275)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label5" type="Label" parent="."]
+offset_left = 45.0
+offset_top = 300.0
+text = "player-upper-idle"
+
+[node name="Sprite6" parent="." instance=ExtResource("7")]
+position = Vector2(335, 275)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label6" type="Label" parent="."]
+offset_left = 260.0
+offset_top = 300.0
+text = "player-upper-parry"
+
+[node name="Sprite7" parent="." instance=ExtResource("8")]
+position = Vector2(550, 275)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label7" type="Label" parent="."]
+offset_left = 475.0
+offset_top = 300.0
+text = "player-lower-idle"
+
+[node name="Sprite8" parent="." instance=ExtResource("9")]
+position = Vector2(765, 275)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label8" type="Label" parent="."]
+offset_left = 690.0
+offset_top = 300.0
+text = "player-lower-run"
+
+[node name="Sprite9" parent="." instance=ExtResource("10")]
+position = Vector2(980, 275)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label9" type="Label" parent="."]
+offset_left = 905.0
+offset_top = 300.0
+text = "player-lower-rise"
+
+[node name="Sprite10" parent="." instance=ExtResource("11")]
+position = Vector2(120, 430)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label10" type="Label" parent="."]
+offset_left = 45.0
+offset_top = 455.0
+text = "player-lower-air-move"
+
+[node name="Sprite11" parent="." instance=ExtResource("12")]
+position = Vector2(335, 430)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label11" type="Label" parent="."]
+offset_left = 260.0
+offset_top = 455.0
+text = "player-lower-fall"
+
+[node name="Sprite12" parent="." instance=ExtResource("13")]
+position = Vector2(550, 430)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label12" type="Label" parent="."]
+offset_left = 475.0
+offset_top = 455.0
+text = "player-lower-land"
+
+[node name="Sprite13" parent="." instance=ExtResource("14")]
+position = Vector2(765, 430)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label13" type="Label" parent="."]
+offset_left = 690.0
+offset_top = 455.0
+text = "player-air-parry"
+
+[node name="Sprite14" parent="." instance=ExtResource("15")]
+position = Vector2(980, 430)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label14" type="Label" parent="."]
+offset_left = 905.0
+offset_top = 455.0
+text = "player-run-parry"
+
+[node name="Sprite15" parent="." instance=ExtResource("16")]
+position = Vector2(120, 585)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label15" type="Label" parent="."]
+offset_left = 45.0
+offset_top = 610.0
+text = "sentinel-idle"
+
+[node name="Sprite16" parent="." instance=ExtResource("17")]
+position = Vector2(335, 585)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label16" type="Label" parent="."]
+offset_left = 260.0
+offset_top = 610.0
+text = "sentinel-move"
+
+[node name="Sprite17" parent="." instance=ExtResource("18")]
+position = Vector2(550, 585)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label17" type="Label" parent="."]
+offset_left = 475.0
+offset_top = 610.0
+text = "sentinel-shoot"
+
+[node name="Sprite18" parent="." instance=ExtResource("19")]
+position = Vector2(765, 585)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label18" type="Label" parent="."]
+offset_left = 690.0
+offset_top = 610.0
+text = "sentinel-hurt"
+
+[node name="Sprite19" parent="." instance=ExtResource("20")]
+position = Vector2(980, 585)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label19" type="Label" parent="."]
+offset_left = 905.0
+offset_top = 610.0
+text = "projectile-fly"
+
+[node name="Sprite20" parent="." instance=ExtResource("21")]
+position = Vector2(120, 740)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label20" type="Label" parent="."]
+offset_left = 45.0
+offset_top = 765.0
+text = "parry-fx-burst"
+
+[node name="Sprite21" parent="." instance=ExtResource("22")]
+position = Vector2(335, 740)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label21" type="Label" parent="."]
+offset_left = 260.0
+offset_top = 765.0
+text = "platform-ground"
+
+[node name="Sprite22" parent="." instance=ExtResource("23")]
+position = Vector2(550, 740)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label22" type="Label" parent="."]
+offset_left = 475.0
+offset_top = 765.0
+text = "platform-ledge"
+
+[node name="Sprite23" parent="." instance=ExtResource("24")]
+position = Vector2(765, 740)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label23" type="Label" parent="."]
+offset_left = 690.0
+offset_top = 765.0
+text = "platform-bounce"
+
+[node name="Sprite24" parent="." instance=ExtResource("25")]
+position = Vector2(980, 740)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label24" type="Label" parent="."]
+offset_left = 905.0
+offset_top = 765.0
+text = "background-wall"
+
+[node name="Sprite25" parent="." instance=ExtResource("26")]
+position = Vector2(120, 895)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label25" type="Label" parent="."]
+offset_left = 45.0
+offset_top = 920.0
+text = "background-arch"
+
+[node name="Sprite26" parent="." instance=ExtResource("27")]
+position = Vector2(335, 895)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label26" type="Label" parent="."]
+offset_left = 260.0
+offset_top = 920.0
+text = "env-pillar"
+
+[node name="Sprite27" parent="." instance=ExtResource("28")]
+position = Vector2(550, 895)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label27" type="Label" parent="."]
+offset_left = 475.0
+offset_top = 920.0
+text = "env-hazard"
+
+[node name="Sprite28" parent="." instance=ExtResource("29")]
+position = Vector2(765, 895)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label28" type="Label" parent="."]
+offset_left = 690.0
+offset_top = 920.0
+text = "env-switch"
+
+[node name="Sprite29" parent="." instance=ExtResource("30")]
+position = Vector2(980, 895)
+scale = Vector2(1.25, 1.25)
+
+[node name="Label29" type="Label" parent="."]
+offset_left = 905.0
+offset_top = 920.0
+text = "env-door"
