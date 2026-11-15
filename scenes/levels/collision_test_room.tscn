@@ -1,0 +1,106 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://bjrihl1iy3ey8" path="res://scenes/character.tscn" id="1_player"]
+[ext_resource type="Script" uid="uid://cb4u21dhutnsp" path="res://scripts/levels/test_level.gd" id="2_tlevel"]
+[ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="floor"]
+[ext_resource type="PackedScene" uid="uid://xd4jpyirp3pd" path="res://scenes/terrain/platform.tscn" id="platform"]
+[ext_resource type="PackedScene" uid="uid://eema2euvy553" path="res://scenes/terrain/wall.tscn" id="wall"]
+
+[node name="CollisionTestRoom" type="Node2D"]
+script = ExtResource("2_tlevel")
+room_subtitle = "00  /  COLLISION TEST ROOM"
+
+[node name="Labels" type="Node2D" parent="."]
+
+[node name="WallsLabel" type="Label" parent="Labels"]
+offset_left = 40.0
+offset_top = -320.0
+offset_right = 220.0
+offset_bottom = -300.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "A / FLOOR + SIDE WALL"
+
+[node name="CeilingLabel" type="Label" parent="Labels"]
+offset_left = 240.0
+offset_top = -320.0
+offset_right = 420.0
+offset_bottom = -300.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "B / LOW CEILING"
+
+[node name="StepLabel" type="Label" parent="Labels"]
+offset_left = 680.0
+offset_top = -320.0
+offset_right = 860.0
+offset_bottom = -300.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "C / SOLID STEP"
+
+[node name="PlatformsLabel" type="Label" parent="Labels"]
+offset_left = 1060.0
+offset_top = -320.0
+offset_right = 1300.0
+offset_bottom = -300.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "D / ONE-WAY PLATFORMS + DROP"
+
+[node name="Floors" type="Node2D" parent="."]
+
+[node name="Ground" parent="Floors" instance=ExtResource("floor")]
+size = Vector2(1920, 256)
+
+[node name="Walls" type="Node2D" parent="."]
+
+[node name="LeftWall" parent="Walls" instance=ExtResource("wall")]
+position = Vector2(-20, -360)
+size = Vector2(40, 800)
+
+[node name="RightWall" parent="Walls" instance=ExtResource("wall")]
+position = Vector2(1940, -360)
+size = Vector2(40, 800)
+
+[node name="Ceiling" parent="Walls" instance=ExtResource("platform")]
+position = Vector2(960, -780)
+size = Vector2(2000, 40)
+one_way = false
+
+[node name="LowCeiling" parent="Walls" instance=ExtResource("platform")]
+position = Vector2(360, -150)
+size = Vector2(320, 40)
+one_way = false
+
+[node name="SolidStep" parent="Walls" instance=ExtResource("wall")]
+position = Vector2(760, -24)
+size = Vector2(160, 48)
+
+[node name="Platforms" type="Node2D" parent="."]
+
+[node name="PlatformLow" parent="Platforms" instance=ExtResource("platform")]
+position = Vector2(1100, -80)
+size = Vector2(160, 28)
+
+[node name="PlatformMid" parent="Platforms" instance=ExtResource("platform")]
+position = Vector2(1300, -160)
+size = Vector2(160, 28)
+
+[node name="PlatformHigh" parent="Platforms" instance=ExtResource("platform")]
+position = Vector2(1500, -240)
+size = Vector2(160, 28)
+
+[node name="SpawnPoint" type="Marker2D" parent="."]
+position = Vector2(120, 0)
+
+[node name="CharacterBody2D" parent="." instance=ExtResource("1_player")]
+position = Vector2(120, 0)
+
+[node name="Camera2D" type="Camera2D" parent="CharacterBody2D"]
+position = Vector2(40, -160)
+zoom = Vector2(0.95, 0.95)
+limit_left = -40
+limit_top = -800
+limit_right = 1960
+limit_bottom = 256

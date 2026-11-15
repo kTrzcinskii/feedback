@@ -4,6 +4,7 @@ extends Node2D
 
 @export var fall_limit_y: float = 360.0
 @export var death_reset_delay: float = 0.35
+@export var room_subtitle: String = "01  /  THE PROVING HALL"
 
 @onready var player: PlayerCharacter = $CharacterBody2D as PlayerCharacter
 @onready var spawn_point: Marker2D = get_node_or_null("SpawnPoint") as Marker2D
@@ -46,7 +47,7 @@ func _setup_hud() -> void:
 
 	var subtitle := Label.new()
 	subtitle.position = Vector2(29, 52)
-	subtitle.text = "01  /  THE PROVING HALL"
+	subtitle.text = room_subtitle
 	subtitle.add_theme_font_size_override("font_size", 11)
 	subtitle.add_theme_color_override("font_color", Color("9da4b7"))
 	layout.add_child(subtitle)
