@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://xd4jpyirp3pd"]
+
+[ext_resource type="Script" uid="uid://dkhiflh8p6sg8" path="res://scripts/level_block.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cedgfcfr3mwgd" path="res://assets/environment/training-ledge.svg" id="2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oepao"]
+size = Vector2(160, 32)
+
+[node name="Platform" type="StaticBody2D" unique_id=1439054610]
+script = ExtResource("1")
+one_way = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=284052999]
+shape = SubResource("RectangleShape2D_oepao")
+one_way_collision = true
+
+[node name="SurfaceVisual" type="NinePatchRect" parent="." unique_id=2061782016]
+offset_left = -80.0
+offset_top = -16.0
+offset_right = 80.0
+offset_bottom = 16.0
+texture = ExtResource("2")
+patch_margin_left = 18
+patch_margin_right = 18
+axis_stretch_horizontal = 2
