@@ -168,7 +168,8 @@ func _update_movement_and_gravity(delta: float, input_x: float, jump_just_presse
 	var has_h_input: bool = absf(input_x) > 0.1
 	var move_sign: float = signf(input_x) if has_h_input else 0.0
 
-	if grounded and not _impulse_applied_this_tick and not has_parry_momentum:
+	# is_on_floor(), not `grounded`: on the takeoff tick ground rules still apply, so running jumps start at full speed
+	if is_on_floor() and not _impulse_applied_this_tick and not has_parry_momentum:
 		# ordinary horizontal movement
 		velocity.x = move_sign * max_ground_movement_speed
 	else:
