@@ -2,6 +2,7 @@ class_name PlayerCharacter
 extends CharacterBody2D
 
 signal parry_started(direction: Vector2, active_duration: float)
+signal parry_succeeded(target: Object, category: StringName, direction: Vector2, resulting_velocity: Vector2)
 signal parry_window_ended(was_successful: bool)
 signal parry_cooldown_ended()
 signal player_damaged(source: Object, remaining_hp: int)
@@ -31,6 +32,12 @@ enum ParryState {
 @export var reset_cooldown_on_attack_parry: bool = true
 ## A successful environmental surface parry does not reset the cooldown
 @export var reset_cooldown_on_surface_parry: bool = false
+## Impulse magnitude granted by parrying a physical attack, in CH/s (Section 2.5.B & Section 4).
+@export var physical_attack_impulse_ch: float = 10.0
+## Default impulse magnitude 'J' granted by parrying a solid environmental surface, in CH/s (Section 3.5 & Section 4).
+@export var surface_parry_impulse_ch: float = 9.5
+## Default coefficient of restitution 'e' for surface parry reflection (Section 3.5).
+@export var default_surface_restitution: float = 0.35
 
 @export_group("Movement Parameters")
 ## Ordinary horizontal movement speed (in CH/s) [br]
@@ -64,7 +71,11 @@ var visual_motion: String = ""
 var _parry_requires_release: bool = false
 var _parry_succeeded_in_current_window: bool = false
 var _cooldown_reset_earned_in_current_window: bool = false
+var _surface_parried_in_current_window: bool = false
+var _parried_targets_in_current_window: Array[int] = []
+var _parried_targets_this_tick: Array[int] = []
 var _impulse_applied_this_tick: bool = false
+var _pre_slide_velocity: Vector2 = Vector2.ZERO
 var _prev_animation: StringName = PlayerAnimatedSprite.IDLE
 var _land_visual_timer: float = 0.0
 var _airborne_time: float = 0.0
@@ -273,6 +284,7 @@ func _physics_process(delta: float) -> void:
 	if is_dead:
 		return
 
+	_parried_targets_this_tick.clear()
 	_impulse_applied_this_tick = false
 	if invulnerability_timer > 0.0:
 		invulnerability_timer = maxf(0.0, invulnerability_timer - delta)
@@ -290,10 +302,12 @@ func _physics_process(delta: float) -> void:
 
 	_update_movement_and_gravity(delta, move_x, jump_just_pressed)
 
-	_resolve_unparried_attacks_and_hazards()
+	# 3. Resolve same-tick parry priority before damage (Sections 2.5 & 2.6)
+	_pre_slide_velocity = velocity
+	_resolve_combat_and_parry_tick()
 
 	_move_character_body_2D(delta)
-	_resolve_unparried_attacks_and_hazards()
+	_resolve_combat_and_parry_tick()
 
 	_update_animations_and_visuals(delta, move_x)
 
@@ -342,6 +356,7 @@ func _update_movement_and_gravity(delta: float, input_x: float, jump_just_presse
 
 func _move_character_body_2D(delta: float) -> void:
 	var was_on_floor: bool = is_on_floor()
+	_pre_slide_velocity = velocity
 	move_and_slide()
 
 	if not is_on_floor():
@@ -386,6 +401,8 @@ func _start_parry(dir_input: Vector2) -> void:
 	_parry_requires_release = true
 	_parry_succeeded_in_current_window = false
 	_cooldown_reset_earned_in_current_window = false
+	_surface_parried_in_current_window = false
+	_parried_targets_in_current_window.clear()
 
 	_rebuild_parry_sector_polygon()
 	_set_parry_hitbox_enabled(true)
@@ -417,6 +434,183 @@ func _end_active_parry_window(overflow: float=0.0) -> void:
 			parry_cooldown_ended.emit()
 
 
+## Same-tick parry and death priority
+## 1. Check whether parry is active
+## 2. Check whether incoming attack intersects the directional hitbox
+## 3. If successful, neutralize or redirect the attack
+## 4. Apply the corresponding momentum effect, if applicable
+## 5. Resolve any remaining collisions and damage
+func _resolve_combat_and_parry_tick() -> void:
+	if is_dead:
+		return
+
+	if parry_state == ParryState.ACTIVE:
+		_resolve_active_parry_against_attacks()
+		if parry_state == ParryState.ACTIVE:
+			_resolve_active_parry_against_surfaces()
+
+	_resolve_unparried_attacks_and_hazards()
+
+
+func _resolve_active_parry_against_attacks() -> void:
+	if get_tree() == null:
+		return
+	var attacks: Array[Node] = get_tree().get_nodes_in_group("parryable_attacks")
+	for node in attacks:
+		if not is_instance_valid(node) or not (node is Node2D):
+			continue
+		var attack := node as Node2D
+		var inst_id: int = attack.get_instance_id()
+		if _parried_targets_in_current_window.has(inst_id):
+			continue
+
+		if attack.has_method("is_attack_active") and not bool(attack.call("is_attack_active")):
+			continue
+
+		var hit_radius: float = float(attack.call("get_hit_radius")) if attack.has_method("get_hit_radius") else 12.0
+		var start_pos: Vector2 = attack.get(
+				"prev_global_position") if ("prev_global_position" in attack) else attack.global_position
+		var end_pos: Vector2 = attack.global_position
+
+		if is_segment_in_parry_sector(start_pos, end_pos, hit_radius):
+			var parried_ok: bool = true
+			if attack.has_method("on_parried"):
+				parried_ok = bool(attack.call("on_parried", self, parry_direction))
+			if not parried_ok:
+				continue
+
+			_parried_targets_in_current_window.append(inst_id)
+			_parried_targets_this_tick.append(inst_id)
+
+			var category: StringName = attack.call("get_attack_category") if attack.has_method(
+					"get_attack_category") else &"attack"
+			if category == &"physical":
+				var imp_dir: Vector2 = attack.call("get_impulse_direction") if attack.has_method(
+						"get_impulse_direction") else (-parry_direction)
+				var imp_ch: float = physical_attack_impulse_ch
+				if "impulse_override_ch" in attack and float(attack.get("impulse_override_ch")) > 0.0:
+					imp_ch = float(attack.get("impulse_override_ch"))
+				apply_parry_impulse(imp_dir.normalized() * (imp_ch * character_height))
+
+			_on_parry_success(attack, category, end_pos)
+			if parry_state != ParryState.ACTIVE:
+				break
+
+
+func _resolve_active_parry_against_surfaces() -> void:
+	if _surface_parried_in_current_window:
+		return
+	var world_2d: World2D = get_world_2d()
+	if world_2d == null:
+		return
+	var space_state: PhysicsDirectSpaceState2D = world_2d.direct_space_state
+	if space_state == null:
+		return
+
+	var origin: Vector2 = get_parry_origin_global()
+	var range_px: float = get_parry_range_px()
+	var half_rad: float = get_parry_half_angle_rad()
+	var base_angle: float = parry_direction.angle()
+
+	var ray_angles: Array[float] = [
+		base_angle,
+		base_angle - half_rad * 0.25,
+		base_angle + half_rad * 0.25,
+		base_angle - half_rad * 0.50,
+		base_angle + half_rad * 0.50,
+		base_angle - half_rad * 0.75,
+		base_angle + half_rad * 0.75,
+		base_angle - half_rad * 0.95,
+		base_angle + half_rad * 0.95,
+	]
+
+	var best_hit: Dictionary = {}
+	var best_dist_sq: float = INF
+
+	for ang in ray_angles:
+		var ray_dir: Vector2 = Vector2.from_angle(ang)
+		var query := PhysicsRayQueryParameters2D.create(origin, origin + ray_dir * range_px, collision_mask,
+				[get_rid()])
+		query.collide_with_bodies = true
+		query.collide_with_areas = false
+		var result: Dictionary = space_state.intersect_ray(query)
+		if not result.is_empty():
+			var normal: Vector2 = result.get("normal", Vector2.ZERO)
+			if normal.length_squared() > 1e-6 and parry_direction.dot(normal) < -0.1:
+				var hit_pos: Vector2 = result.get("position", origin)
+				var d_sq: float = origin.distance_squared_to(hit_pos)
+				if d_sq < best_dist_sq:
+					best_dist_sq = d_sq
+					best_hit = result
+
+	if best_hit.is_empty():
+		return
+
+	_surface_parried_in_current_window = true
+	var surface_normal: Vector2 = (best_hit["normal"] as Vector2).normalized()
+	var collider: Object = best_hit.get("collider", null)
+	var hit_point: Vector2 = best_hit.get("position", origin)
+
+	var restitution: float = default_surface_restitution
+	var impulse_mult: float = 1.0
+	var custom_impulse_ch: float = -1.0
+	if collider is ParryableSurface:
+		var ps := collider as ParryableSurface
+		restitution = ps.restitution
+		impulse_mult = ps.impulse_multiplier
+		custom_impulse_ch = ps.surface_impulse_ch
+
+	# If move_and_slide already cancelled velocity into the surface on
+	# this tick, restore the pre-slide normal component
+	if _pre_slide_velocity.dot(surface_normal) < velocity.dot(surface_normal):
+		velocity = _pre_slide_velocity
+
+	apply_surface_parry_bounce(surface_normal, restitution, impulse_mult, custom_impulse_ch)
+	_on_parry_success(collider, &"surface", hit_point)
+
+
+## Momentum and impulse application (v_new = v_old + delta_v)
+func apply_parry_impulse(delta_v: Vector2) -> void:
+	velocity += delta_v
+	has_parry_momentum = true
+	_impulse_applied_this_tick = true
+
+
+## Environmental surface parry reflection & impulse
+## v_reflected = v - (1 + e) * dot(v, n) * n if dot(v, n) < 0, else v
+## v_new = v_reflected + J * n
+func apply_surface_parry_bounce(
+		surface_normal: Vector2,
+		restitution: float=-1.0,
+		impulse_multiplier: float=1.0,
+		custom_impulse_ch: float=-1.0
+) -> void:
+	var n: Vector2 = surface_normal.normalized()
+	if n.length_squared() <= 1e-6:
+		return
+	var e: float = restitution if restitution >= 0.0 else default_surface_restitution
+	var v_dot_n: float = velocity.dot(n)
+	var v_reflected: Vector2 = (velocity - (1.0 + e) * v_dot_n * n) if v_dot_n < 0.0 else velocity
+	var base_impulse_ch: float = custom_impulse_ch if custom_impulse_ch >= 0.0 else surface_parry_impulse_ch
+	var j_impulse: float = base_impulse_ch * character_height * impulse_multiplier
+
+	velocity = v_reflected + j_impulse * n
+	has_parry_momentum = true
+	_impulse_applied_this_tick = true
+
+
+func _on_parry_success(target: Object, category: StringName, _fx_global_pos: Vector2) -> void:
+	_parry_succeeded_in_current_window = true
+	if category == &"surface":
+		if reset_cooldown_on_surface_parry:
+			_cooldown_reset_earned_in_current_window = true
+	else:
+		if reset_cooldown_on_attack_parry:
+			_cooldown_reset_earned_in_current_window = true
+
+	parry_succeeded.emit(target, category, parry_direction, velocity)
+
+
 func _resolve_unparried_attacks_and_hazards() -> void:
 	if is_dead or get_tree() == null:
 		return
@@ -446,6 +640,10 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 		if not is_instance_valid(node) or not (node is Node2D) or node.is_queued_for_deletion():
 			continue
 		var attack := node as Node2D
+		var inst_id: int = attack.get_instance_id()
+		# A successfully parried attack doesn't decrease player hp
+		if _parried_targets_this_tick.has(inst_id):
+			continue
 		if attack.has_method("can_damage_player") and not bool(attack.call("can_damage_player", self)):
 			continue
 
@@ -575,7 +773,11 @@ func reset_player_state(spawn_global_position: Vector2) -> void:
 	_parry_requires_release = false
 	_parry_succeeded_in_current_window = false
 	_cooldown_reset_earned_in_current_window = false
+	_surface_parried_in_current_window = false
+	_parried_targets_in_current_window.clear()
+	_parried_targets_this_tick.clear()
 	_impulse_applied_this_tick = false
+	_pre_slide_velocity = Vector2.ZERO
 	_land_visual_timer = 0.0
 	_airborne_time = 0.0
 	_hurt_visual_active = false

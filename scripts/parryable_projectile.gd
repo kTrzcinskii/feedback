@@ -11,8 +11,10 @@ const PROJECTILE_FRAMES: SpriteFrames = preload("res://assets/godot/projectile-f
 var velocity: Vector2 = Vector2.ZERO
 var is_reflected: bool = false
 var prev_global_position: Vector2 = Vector2.ZERO
+var ignore_player_until_exit: bool = false
 var source_emitter: Node2D = null
 
+var _ignored_player: Node2D = null
 var _lifetime: float = 0.0
 var _sprite: AnimatedSprite2D = null
 var _collision_shape: CollisionShape2D = null
@@ -72,13 +74,30 @@ func get_hit_radius() -> float:
 	return collision_radius
 
 
-func can_damage_player(_player: Node2D) -> bool:
-	return is_inside_tree() and not is_queued_for_deletion()
+func can_damage_player(player: Node2D) -> bool:
+	if not is_inside_tree() or is_queued_for_deletion():
+		return false
+	if ignore_player_until_exit and _ignored_player == player:
+		return false
+	return true
+
+
+func on_parried(player: Node2D, _parry_dir: Vector2) -> bool:
+	# Reverse velocity by 180 degrees, preserving original speed (Section 2.5.A)
+	velocity = -velocity
+	direction = -direction
+	is_reflected = true
+	ignore_player_until_exit = true
+	_ignored_player = player
+	prev_global_position = global_position
+	_update_visual_orientation()
+	return true
 
 
 func _update_visual_orientation() -> void:
 	if _sprite != null:
 		_sprite.rotation = direction.angle()
+		_sprite.modulate = Color(0.76, 0.63, 1.0, 1.0) if is_reflected else Color(1.0, 1.0, 1.0, 1.0)
 
 
 func _physics_process(delta: float) -> void:
@@ -90,6 +109,13 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 		return
 
+	if ignore_player_until_exit and is_instance_valid(_ignored_player):
+		var player_origin: Vector2 = _ignored_player.call("get_parry_origin_global") if _ignored_player.has_method("get_parry_origin_global") else _ignored_player.global_position
+		var player_radius: float = float(_ignored_player.call("get_hurtbox_radius")) if _ignored_player.has_method("get_hurtbox_radius") else 22.0
+		if global_position.distance_to(player_origin) > (player_radius + collision_radius + 8.0):
+			ignore_player_until_exit = false
+			_ignored_player = null
+
 	_check_target_interactions()
 
 
@@ -97,6 +123,7 @@ func _check_target_interactions() -> void:
 	if is_queued_for_deletion():
 		return
 
+	# Check switches
 	for sw in get_tree().get_nodes_in_group("switches"):
 		if not is_instance_valid(sw) or not (sw is Node2D):
 			continue
@@ -107,6 +134,22 @@ func _check_target_interactions() -> void:
 				sw_node.call("on_hit_by_projectile", self)
 			queue_free()
 			return
+
+	# Check enemies/emitters
+	if is_reflected:
+		for enemy in get_tree().get_nodes_in_group("enemies"):
+			if not is_instance_valid(enemy) or not (enemy is Node2D):
+				continue
+			if enemy.has_method("is_defeated") and bool(enemy.call("is_defeated")):
+				continue
+			var enemy_node := enemy as Node2D
+			var enemy_center: Vector2 = enemy_node.call("get_center_global") if enemy_node.has_method("get_center_global") else (enemy_node.global_position + Vector2(0, -32))
+			var enemy_radius: float = float(enemy_node.call("get_hit_radius")) if enemy_node.has_method("get_hit_radius") else 28.0
+			if _segment_distance_to_point(prev_global_position, global_position, enemy_center) <= (collision_radius + enemy_radius):
+				if enemy_node.has_method("on_hit_by_reflected_projectile"):
+					enemy_node.call("on_hit_by_reflected_projectile", self)
+				queue_free()
+				return
 
 
 static func _segment_distance_to_point(a: Vector2, b: Vector2, p: Vector2) -> float:
