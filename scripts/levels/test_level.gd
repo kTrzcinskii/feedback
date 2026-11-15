@@ -57,7 +57,7 @@ func _setup_hud() -> void:
 	layout.add_child(_hud_label)
 	_hud_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	_hud_label.position += Vector2(-350, 24)
-	_hud_label.size = Vector2(322, 60)
+	_hud_label.size = Vector2(322, 80)
 	_hud_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_hud_label.add_theme_font_size_override("font_size", 13)
 	_hud_label.add_theme_color_override("font_color", Color("b5c2ce"))
@@ -121,7 +121,8 @@ func _update_hud() -> void:
 	var state: String = "GROUNDED" if player.is_on_floor() else "AIRBORNE"
 	if player.is_invulnerable():
 		state = "INVULNERABLE  %.2fs" % player.invulnerability_timer
-	_hud_label.text = "HP  %d / %d     •     %s\nVELOCITY   %.0f, %.0f px/s  /  %.1f, %.1f CH/s" % [
+	_hud_label.text = "HP  %d / %d     •     %s\nVELOCITY   %.0f, %.0f px/s  /  %.1f, %.1f CH/s\nFPS  %d     •     PHYSICS  %d Hz" % [
 		player.hp, player.max_hp, state,
 		player.velocity.x, player.velocity.y, vel_ch.x, vel_ch.y,
+		Engine.get_frames_per_second(), Engine.physics_ticks_per_second,
 	]
