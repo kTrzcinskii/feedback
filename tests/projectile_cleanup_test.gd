@@ -1,6 +1,4 @@
-## Headless checks for projectile cleanup (FB020): projectiles are removed on
-## static world contact and when leaving the level bounds, and a sustained
-## firing sequence leaves no accumulating projectiles.
+## Projectiles freed on world contact and out of bounds.
 ## Run: godot --headless --path . --import && godot --headless --path . -s res://tests/projectile_cleanup_test.gd
 extends SceneTree
 
@@ -109,8 +107,7 @@ func _test_world_contact() -> void:
 	await _cleanup(world)
 
 
-## Non-static bodies (e.g. characters) are not world contact: the existing
-## player/enemy contact rules stay authoritative.
+## Non-static bodies keep the existing player/enemy contact rules.
 func _test_character_body_ignored() -> void:
 	var world := _make_world()
 	_make_character_block(world, Vector2(300, 0), 60.0)
@@ -181,8 +178,7 @@ func _test_reflected_cleanup() -> void:
 	await _cleanup(world)
 
 
-## The real level derives bounds from its terrain: contains the room and
-## frees a contact-disabled projectile once it leaves the grown rect.
+## Real level bounds contain the room and free a projectile leaving the rect.
 func _test_level_bounds_from_terrain() -> void:
 	var level := (load("res://scenes/levels/emitter_test.tscn") as PackedScene).instantiate()
 	root.add_child(level)

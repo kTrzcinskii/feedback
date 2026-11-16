@@ -2,11 +2,13 @@ class_name TestLevel
 extends Node2D
 
 
+## World Y below which the player dies.
 @export var fall_limit_y: float = 360.0
+## Delay in seconds before the room resets after a death.
 @export var death_reset_delay: float = 0.35
+## Subtitle text shown on the room HUD.
 @export var room_subtitle: String = "01  /  THE PROVING HALL"
-## Extra room around the terrain union before projectiles count as out of
-## bounds.
+## Extra room around the terrain before projectiles are out of bounds.
 @export_range(0.0, 2000.0, 10.0, "suffix:px") var projectile_bounds_margin: float = 240.0
 
 @onready var player: PlayerCharacter = $CharacterBody2D as PlayerCharacter
@@ -116,8 +118,7 @@ func reset_room() -> void:
 		player.reset_player_state(_initial_spawn_pos)
 
 
-## World rect (terrain union + margin) projectiles must stay inside. Computed
-## once, on first request, from the static bodies owned by this level.
+## Terrain union grown by the margin, computed once on first request.
 func get_projectile_bounds() -> Rect2:
 	if not _bounds_ready:
 		_projectile_bounds = _compute_world_bounds().grow(projectile_bounds_margin)
@@ -141,8 +142,7 @@ func _compute_world_bounds() -> Rect2:
 	return rect if found else rect
 
 
-## Axis-aligned world rect of a collision shape (rectangle / circle / segment
-## supported; anything else falls back to its origin point).
+## AABB for rect/circle/segment shapes, others fall back to their origin.
 func _shape_world_rect(collision: CollisionShape2D) -> Rect2:
 	var xform: Transform2D = collision.get_global_transform()
 	var shape := collision.shape

@@ -10,14 +10,15 @@ enum FlightMode {
 const PROJECTILE_FRAMES: SpriteFrames = preload("res://assets/godot/projectile-fly.tres")
 
 @export var speed: float = 340.0
+## Initial flight direction (normalized at launch).
 @export var direction: Vector2 = Vector2.LEFT
+## Projectile hit radius in pixels.
 @export var collision_radius: float = 12.0
+## Failsafe lifetime in seconds before freeing.
 @export var max_lifetime: float = 8.0
-## Free the projectile when its flight segment hits static world geometry
-## (floors, walls, platforms). Bodies such as the player keep their own
-## contact rules.
+## Free on contact with static world geometry (not characters).
 @export var die_on_world_contact: bool = true
-## Collision layers checked for world contact (default: layer 1 = terrain).
+## Physics layers treated as world geometry.
 @export_flags_2d_physics var world_collision_mask: int = 1
 
 var velocity: Vector2 = Vector2.ZERO
@@ -243,10 +244,7 @@ func _fly_homing(delta: float) -> void:
 	_update_visual_orientation()
 
 
-## World contact: free on hitting static geometry. The per-tick segment
-## (prev -> current position) is swept through physics space, so tunneling
-## is impossible at any speed. Non-static bodies (player, enemies) keep
-## their own contact rules (Section 2.5).
+## Free on static geometry, the swept per-tick segment prevents tunneling.
 func _check_world_contact() -> void:
 	if not die_on_world_contact or not is_inside_tree():
 		return
@@ -260,9 +258,7 @@ func _check_world_contact() -> void:
 		queue_free()
 
 
-## Out of bounds: free once the projectile leaves the level's world rect
-## (terrain union + margin, provided by the level node). When no level
-## provides bounds, max_lifetime remains the failsafe.
+## Free outside the level-provided rect, max_lifetime stays the failsafe.
 func _check_out_of_bounds() -> void:
 	if _has_bounds and not _bounds.has_point(global_position):
 		queue_free()
