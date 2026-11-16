@@ -66,7 +66,7 @@ func _setup_hud() -> void:
 	layout.add_child(controls)
 	controls.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	controls.position += Vector2(28, -40)
-	controls.text = "A / D  or  ← / →   MOVE       SPACE   JUMP       R   RESET"
+	controls.text = "A / D  or  ← / →   MOVE / AIM       SPACE   JUMP       E / J / SHIFT   PARRY       R   RESET       T   SURFACE CD"
 	controls.add_theme_font_size_override("font_size", 12)
 	controls.add_theme_color_override("font_color", Color("a0afbc"))
 
@@ -75,6 +75,10 @@ func _physics_process(delta: float) -> void:
 	if InputMap.has_action("Restart") and Input.is_action_just_pressed("Restart"):
 		reset_room()
 		return
+
+	if InputMap.has_action("ToggleCooldownReset") and Input.is_action_just_pressed("ToggleCooldownReset"):
+		if player != null:
+			player.reset_cooldown_on_surface_parry = not player.reset_cooldown_on_surface_parry
 
 	# Bottomless pits, out of bounds etc. death (y grows down)
 	if player != null and not _reset_pending and player.global_position.y > fall_limit_y:
@@ -121,8 +125,25 @@ func _update_hud() -> void:
 	var state: String = "GROUNDED" if player.is_on_floor() else "AIRBORNE"
 	if player.is_invulnerable():
 		state = "INVULNERABLE  %.2fs" % player.invulnerability_timer
-	_hud_label.text = "HP  %d / %d     •     %s\nVELOCITY   %.0f, %.0f px/s  /  %.1f, %.1f CH/s\nFPS  %d     •     PHYSICS  %d Hz" % [
-		player.hp, player.max_hp, state,
-		player.velocity.x, player.velocity.y, vel_ch.x, vel_ch.y,
-		Engine.get_frames_per_second(), Engine.physics_ticks_per_second,
-	]
+	_hud_label.text = "\n".join([
+		"HP  %d / %d     •     %s" % [player.hp, player.max_hp, state],
+		"VELOCITY   %.0f, %.0f px/s  /  %.1f, %.1f CH/s" % [
+			player.velocity.x, player.velocity.y, vel_ch.x, vel_ch.y,
+		],
+		"FPS  %d     •     PHYSICS  %d Hz" % [
+			Engine.get_frames_per_second(), Engine.physics_ticks_per_second,
+		],
+		"PARRY %s  %.2fs" % [player.get_parry_state_name(), player.parry_timer],
+		"AIM %s  LOCK %s" % [
+			_format_dir(player.get_aim_direction_preview()), _format_dir(player.parry_direction),
+		],
+		"RANGE %.1f CH  ±%.1f°" % [player.parry_hitbox_range_ch, player.parry_angular_coverage_deg],
+		"CD RESET: ATTACK %s / SURFACE %s" % [
+			str(player.reset_cooldown_on_attack_parry), str(player.reset_cooldown_on_surface_parry),
+		],
+	])
+
+
+static func _format_dir(d: Vector2) -> String:
+	var n: Vector2 = d.normalized()
+	return "(%.2f, %.2f)" % [n.x, n.y]
