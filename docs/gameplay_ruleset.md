@@ -109,6 +109,8 @@ When an enemy projectile enters the active parry hitbox:
 - The projectile can damage enemies and activate environmental mechanisms.
 - The projectile can still damage the player if it subsequently collides with them.
 
+Projectile lifecycle: a projectile (parried or not) is removed as soon as its flight path contacts static world geometry (floors, walls, platforms) or leaves the level's world bounds. Contact with characters follows the rules in Sections 2.5 and 4 instead.
+
 #### B. Physical attack parry
 
 When an enemy's physical attack intersects the active parry hitbox:
