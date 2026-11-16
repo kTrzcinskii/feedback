@@ -1,6 +1,14 @@
 class_name ParryableProjectile
 extends Area2D
 
+## Flight behaviour of an un-parried projectile. A successful parry always
+## converts the flight back to STRAIGHT (reflected), regardless of mode.
+enum FlightMode {
+	STRAIGHT,
+	SPLINE,
+	HOMING,
+}
+
 const PROJECTILE_FRAMES: SpriteFrames = preload("res://assets/godot/projectile-fly.tres")
 
 @export var speed: float = 340.0
@@ -13,6 +21,15 @@ var is_reflected: bool = false
 var prev_global_position: Vector2 = Vector2.ZERO
 var ignore_player_until_exit: bool = false
 var source_emitter: Node2D = null
+
+var _flight_mode: int = FlightMode.STRAIGHT
+var _path_curve: Curve2D = null
+var _path_xform: Transform2D = Transform2D.IDENTITY
+var _path_distance: float = 0.0
+var _homing_target: Node2D = null
+var _homing_turn_rate: float = deg_to_rad(90.0)
+var _homing_track_forever: bool = false
+var _homing_time_left: float = 0.0
 
 var _ignored_player: Node2D = null
 var _lifetime: float = 0.0
@@ -63,6 +80,51 @@ func configure(p_origin: Vector2, p_direction: Vector2, p_speed: float, p_emitte
 	speed = p_speed
 	velocity = direction * speed
 	source_emitter = p_emitter
+	_flight_mode = FlightMode.STRAIGHT
+	_path_curve = null
+	_homing_target = null
+	_update_visual_orientation()
+
+
+## Ride a repeatable spline path. The curve is sampled in the coordinate space
+## of p_curve_xform (the owning Path2D's or the emitter's global transform),
+## starting p_start_distance pixels along the curve. Once the curve ends,
+## flight continues straight along the exit tangent.
+func configure_spline_flight(p_origin: Vector2, p_curve: Curve2D, p_curve_xform: Transform2D,
+		p_speed: float, p_emitter: Node2D = null, p_start_distance: float = 0.0) -> void:
+	global_position = p_origin
+	prev_global_position = p_origin
+	source_emitter = p_emitter
+	speed = p_speed
+	_flight_mode = FlightMode.SPLINE
+	_path_curve = p_curve
+	_path_xform = p_curve_xform
+	_path_distance = p_start_distance
+	var tangent: Vector2 = transformed_tangent(p_curve, p_start_distance, p_curve_xform)
+	direction = tangent.normalized() if tangent.length_squared() > 1e-6 else Vector2.LEFT
+	velocity = direction * speed
+	_homing_target = null
+	_update_visual_orientation()
+
+
+## Fly straight along p_direction, steering toward p_target by at most
+## p_turn_rate_rad radians per second for p_tracking_duration seconds
+## (<= 0 tracks forever). Expiry or an invalid target locks the heading.
+func configure_homing_flight(p_origin: Vector2, p_direction: Vector2, p_speed: float,
+		p_target: Node2D, p_turn_rate_rad: float, p_tracking_duration: float,
+		p_emitter: Node2D = null) -> void:
+	global_position = p_origin
+	prev_global_position = p_origin
+	source_emitter = p_emitter
+	speed = p_speed
+	_flight_mode = FlightMode.HOMING
+	_homing_target = p_target
+	_homing_turn_rate = maxf(p_turn_rate_rad, 0.0)
+	_homing_track_forever = p_tracking_duration <= 0.0
+	_homing_time_left = maxf(p_tracking_duration, 0.0)
+	direction = p_direction.normalized() if p_direction.length_squared() > 1e-6 else Vector2.LEFT
+	velocity = direction * speed
+	_path_curve = null
 	_update_visual_orientation()
 
 
@@ -84,6 +146,10 @@ func can_damage_player(player: Node2D) -> bool:
 
 func on_parried(player: Node2D, _parry_dir: Vector2) -> bool:
 	# Reverse velocity by 180 degrees, preserving original speed (Section 2.5.A)
+	# Any path following ends here: the reflected projectile flies straight.
+	_flight_mode = FlightMode.STRAIGHT
+	_path_curve = null
+	_homing_target = null
 	velocity = -velocity
 	direction = -direction
 	is_reflected = true
@@ -102,7 +168,13 @@ func _update_visual_orientation() -> void:
 
 func _physics_process(delta: float) -> void:
 	prev_global_position = global_position
-	global_position += velocity * delta
+	match _flight_mode:
+		FlightMode.SPLINE:
+			_fly_spline(delta)
+		FlightMode.HOMING:
+			_fly_homing(delta)
+		_:
+			global_position += velocity * delta
 	_lifetime += delta
 
 	if _lifetime >= max_lifetime:
@@ -117,6 +189,85 @@ func _physics_process(delta: float) -> void:
 			_ignored_player = null
 
 	_check_target_interactions()
+
+
+## Advance along the spline curve, keeping [code]velocity[/code] in sync with
+## the curve tangent so sweep-based hit detection stays correct.
+func _fly_spline(delta: float) -> void:
+	if _path_curve == null:
+		_flight_mode = FlightMode.STRAIGHT
+		global_position += velocity * delta
+		return
+	var length := _path_curve.get_baked_length()
+	_path_distance += speed * delta
+	if _path_distance >= length:
+		# The path ended: continue straight along the exit tangent.
+		var end_point: Vector2 = _path_xform * _path_curve.sample_baked(length)
+		var exit_dir := transformed_tangent(_path_curve, length, _path_xform)
+		global_position = end_point + exit_dir * (_path_distance - length)
+		direction = exit_dir
+		velocity = exit_dir * speed
+		_flight_mode = FlightMode.STRAIGHT
+		_path_curve = null
+	else:
+		global_position = _path_xform * _path_curve.sample_baked(_path_distance)
+		var tangent: Vector2 = transformed_tangent(_path_curve, _path_distance, _path_xform)
+		if tangent.length_squared() > 1e-6:
+			direction = tangent.normalized()
+			velocity = direction * speed
+	_update_visual_orientation()
+
+
+## Steer the heading toward the homing target, then advance straight.
+func _fly_homing(delta: float) -> void:
+	var tracking := _homing_track_forever or _homing_time_left > 0.0
+	if tracking and is_instance_valid(_homing_target):
+		var to_target := target_center(_homing_target) - global_position
+		if to_target.length_squared() > 1e-6:
+			var desired := to_target.normalized()
+			var max_turn := _homing_turn_rate * delta
+			var turn := clampf(direction.angle_to(desired), -max_turn, max_turn)
+			if not is_zero_approx(turn):
+				direction = direction.rotated(turn)
+	else:
+		_flight_mode = FlightMode.STRAIGHT
+		_homing_target = null
+	if not _homing_track_forever:
+		_homing_time_left = maxf(0.0, _homing_time_left - delta)
+	velocity = direction * speed
+	global_position += velocity * delta
+	_update_visual_orientation()
+
+
+## Unit tangent of a baked Curve2D at the given arc distance (curve-local).
+static func curve_tangent(curve: Curve2D, distance: float) -> Vector2:
+	var length := curve.get_baked_length()
+	var t := curve.sample_baked(clampf(distance + 1.0, 0.0, length)) \
+			- curve.sample_baked(clampf(distance - 1.0, 0.0, length))
+	if t.length_squared() <= 1e-10:
+		return Vector2.RIGHT
+	return t.normalized()
+
+
+## Unit tangent mapped through xform. Computed from two transformed points:
+## Transform2D * Vector2 includes translation, which would corrupt directions.
+static func transformed_tangent(curve: Curve2D, distance: float, xform: Transform2D) -> Vector2:
+	var length := curve.get_baked_length()
+	var a := xform * curve.sample_baked(clampf(distance - 1.0, 0.0, length))
+	var b := xform * curve.sample_baked(clampf(distance + 1.0, 0.0, length))
+	var t := b - a
+	if t.length_squared() <= 1e-10:
+		return Vector2.RIGHT
+	return t.normalized()
+
+
+## Best-effort aim point of a node (centre methods preferred, else origin).
+static func target_center(target: Node2D) -> Vector2:
+	if target.has_method("get_center_global"):
+		return target.call("get_center_global")
+	if target.has_method("get_parry_origin_global"):
+		return target.call("get_parry_origin_global")
+	return target.global_position
 
 
 func _check_target_interactions() -> void:

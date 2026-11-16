@@ -1,0 +1,119 @@
+[gd_scene format=3 uid="uid://diy2gjpnkk4dp"]
+
+[ext_resource type="PackedScene" uid="uid://bjrihl1iy3ey8" path="res://scenes/character.tscn" id="1_player"]
+[ext_resource type="Script" uid="uid://cb4u21dhutnsp" path="res://scripts/levels/test_level.gd" id="2_tlevel"]
+[ext_resource type="PackedScene" path="res://scenes/hazards/projectile_emitter.tscn" id="emitter"]
+[ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="floor"]
+[ext_resource type="PackedScene" uid="uid://xd4jpyirp3pd" path="res://scenes/terrain/platform.tscn" id="platform"]
+[ext_resource type="PackedScene" uid="uid://eema2euvy553" path="res://scenes/terrain/wall.tscn" id="wall"]
+
+[sub_resource type="Curve2D" id="Curve2D_mortar"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, -120, 0, 0, 110, 30, -110, -30, -180, -150, 99.83471, -23.47107, -99.83471, 23.47107, -360, -40)
+}
+point_count = 3
+
+[node name="EmitterLab" type="Node2D" unique_id=482298820]
+script = ExtResource("2_tlevel")
+room_subtitle = "02  /  EMITTER LAB"
+
+[node name="Labels" type="Node2D" parent="." unique_id=1095782963]
+
+[node name="LineLabel" type="Label" parent="Labels" unique_id=503385529]
+offset_left = 872.0
+offset_top = -449.0
+offset_right = 1112.0
+offset_bottom = -429.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "A  /  LINE  •  1.6S  •  380PX/S"
+
+[node name="ArcLabel" type="Label" parent="Labels" unique_id=1059946236]
+offset_left = 1424.0
+offset_top = -197.0
+offset_right = 1684.0
+offset_bottom = -177.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "B  /  SPLINE  •  2.4S  •  320PX/S"
+
+[node name="SeekLabel" type="Label" parent="Labels" unique_id=1547237867]
+offset_left = 311.0
+offset_top = -468.0
+offset_right = 591.0
+offset_bottom = -448.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "C  /  HOMING  •  130°/S  •  3.0S"
+
+[node name="Floors" type="Node2D" parent="." unique_id=117083485]
+
+[node name="Ground" parent="Floors" unique_id=1951266134 instance=ExtResource("floor")]
+size = Vector2(1920, 256)
+
+[node name="Walls" type="Node2D" parent="." unique_id=1051440154]
+
+[node name="LeftWall" parent="Walls" unique_id=1144207795 instance=ExtResource("wall")]
+position = Vector2(-20, -360)
+size = Vector2(40, 800)
+
+[node name="RightWall" parent="Walls" unique_id=1986417918 instance=ExtResource("wall")]
+position = Vector2(1940, -360)
+size = Vector2(40, 800)
+
+[node name="Platforms" type="Node2D" parent="." unique_id=486360001]
+
+[node name="Lookout" parent="Platforms" unique_id=276581606 instance=ExtResource("platform")]
+position = Vector2(274, -195)
+size = Vector2(160, 28)
+
+[node name="MidLedge" parent="Platforms" unique_id=54226530 instance=ExtResource("platform")]
+position = Vector2(562, -85)
+size = Vector2(160, 28)
+
+[node name="HighLedge" parent="Platforms" unique_id=728054930 instance=ExtResource("platform")]
+position = Vector2(816, -171)
+size = Vector2(160, 28)
+
+[node name="FarLedge" parent="Platforms" unique_id=1370048713 instance=ExtResource("platform")]
+position = Vector2(1087, -246)
+size = Vector2(160, 28)
+
+[node name="Emitters" type="Node2D" parent="." unique_id=1991055750]
+
+[node name="LineTurret" parent="Emitters" unique_id=1750001777 instance=ExtResource("emitter")]
+position = Vector2(959, -408)
+launch_angle_deg = 155.0
+attack_interval = 1.6
+projectile_speed = 380.0
+
+[node name="ArcMortar" parent="Emitters" unique_id=383567203 instance=ExtResource("emitter")]
+position = Vector2(1520, -140)
+path_mode = 1
+attack_interval = 2.4
+projectile_speed = 320.0
+
+[node name="Path" type="Path2D" parent="Emitters/ArcMortar" unique_id=469995976]
+curve = SubResource("Curve2D_mortar")
+
+[node name="SeekerLauncher" parent="Emitters" unique_id=1178297479 instance=ExtResource("emitter")]
+position = Vector2(400, -430)
+path_mode = 2
+turn_rate_deg = 130.0
+tracking_duration = 1.8
+attack_interval = 3.0
+projectile_speed = 250.0
+
+[node name="SpawnPoint" type="Marker2D" parent="." unique_id=1067281833]
+position = Vector2(160, 0)
+
+[node name="CharacterBody2D" parent="." unique_id=1543385554 instance=ExtResource("1_player")]
+position = Vector2(160, 0)
+
+[node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=1515683721]
+position = Vector2(40, -160)
+zoom = Vector2(0.95, 0.95)
+limit_left = -40
+limit_top = -800
+limit_right = 1960
+limit_bottom = 256

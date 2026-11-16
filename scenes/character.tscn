@@ -264,7 +264,7 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_i4dei"]
 radius = 22.022715
 
-[node name="CharacterBody2D" type="CharacterBody2D" unique_id=793689480]
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=793689480 groups=["player"]]
 floor_snap_length = 8.0
 script = ExtResource("1_rkhd4")
 

@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/emitters/projectile_emitter.gd" id="1_emitter"]
+[ext_resource type="PackedScene" path="res://scenes/hazards/parryable_projectile.tscn" id="2_projectile"]
+
+[node name="ProjectileEmitter" type="Node2D"]
+script = ExtResource("1_emitter")
+projectile_scene = ExtResource("2_projectile")
