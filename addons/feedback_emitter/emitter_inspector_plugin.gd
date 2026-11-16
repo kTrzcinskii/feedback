@@ -1,13 +1,7 @@
 @tool
 extends EditorInspectorPlugin
 
-## Filters the ProjectileEmitter "Path" section down to the variables that
-## matter for the selected path mode:
-##   LINE         -> launch_angle_deg
-##   SPLINE       -> path_node
-##   TRACK_TARGET -> target_node, target_group, turn_rate_deg, tracking_duration
-## The emitter's path_mode setter calls notify_property_list_changed(), so
-## the inspector rebuilds (and re-filters) immediately on mode switches.
+## Filters the emitter "Path" section down to the variables relevant to path_mode.
 
 const LINE_PROPERTIES: PackedStringArray = ["launch_angle_deg"]
 const SPLINE_PROPERTIES: PackedStringArray = ["path_node"]

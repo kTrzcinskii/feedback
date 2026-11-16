@@ -1,8 +1,6 @@
 class_name ParryableProjectile
 extends Area2D
 
-## Flight behaviour of an un-parried projectile. A successful parry always
-## converts the flight back to STRAIGHT (reflected), regardless of mode.
 enum FlightMode {
 	STRAIGHT,
 	SPLINE,
@@ -86,10 +84,7 @@ func configure(p_origin: Vector2, p_direction: Vector2, p_speed: float, p_emitte
 	_update_visual_orientation()
 
 
-## Ride a repeatable spline path. The curve is sampled in the coordinate space
-## of p_curve_xform (the owning Path2D's or the emitter's global transform),
-## starting p_start_distance pixels along the curve. Once the curve ends,
-## flight continues straight along the exit tangent.
+## Ride the curve in p_curve_xform space, then straight along the exit tangent.
 func configure_spline_flight(p_origin: Vector2, p_curve: Curve2D, p_curve_xform: Transform2D,
 		p_speed: float, p_emitter: Node2D = null, p_start_distance: float = 0.0) -> void:
 	global_position = p_origin
@@ -107,9 +102,7 @@ func configure_spline_flight(p_origin: Vector2, p_curve: Curve2D, p_curve_xform:
 	_update_visual_orientation()
 
 
-## Fly straight along p_direction, steering toward p_target by at most
-## p_turn_rate_rad radians per second for p_tracking_duration seconds
-## (<= 0 tracks forever). Expiry or an invalid target locks the heading.
+## Steer toward p_target for p_tracking_duration s (<= 0 = forever).
 func configure_homing_flight(p_origin: Vector2, p_direction: Vector2, p_speed: float,
 		p_target: Node2D, p_turn_rate_rad: float, p_tracking_duration: float,
 		p_emitter: Node2D = null) -> void:
@@ -146,7 +139,6 @@ func can_damage_player(player: Node2D) -> bool:
 
 func on_parried(player: Node2D, _parry_dir: Vector2) -> bool:
 	# Reverse velocity by 180 degrees, preserving original speed (Section 2.5.A)
-	# Any path following ends here: the reflected projectile flies straight.
 	_flight_mode = FlightMode.STRAIGHT
 	_path_curve = null
 	_homing_target = null
@@ -191,8 +183,6 @@ func _physics_process(delta: float) -> void:
 	_check_target_interactions()
 
 
-## Advance along the spline curve, keeping [code]velocity[/code] in sync with
-## the curve tangent so sweep-based hit detection stays correct.
 func _fly_spline(delta: float) -> void:
 	if _path_curve == null:
 		_flight_mode = FlightMode.STRAIGHT
@@ -201,7 +191,6 @@ func _fly_spline(delta: float) -> void:
 	var length := _path_curve.get_baked_length()
 	_path_distance += speed * delta
 	if _path_distance >= length:
-		# The path ended: continue straight along the exit tangent.
 		var end_point: Vector2 = _path_xform * _path_curve.sample_baked(length)
 		var exit_dir := transformed_tangent(_path_curve, length, _path_xform)
 		global_position = end_point + exit_dir * (_path_distance - length)
@@ -218,7 +207,6 @@ func _fly_spline(delta: float) -> void:
 	_update_visual_orientation()
 
 
-## Steer the heading toward the homing target, then advance straight.
 func _fly_homing(delta: float) -> void:
 	var tracking := _homing_track_forever or _homing_time_left > 0.0
 	if tracking and is_instance_valid(_homing_target):
@@ -239,18 +227,6 @@ func _fly_homing(delta: float) -> void:
 	_update_visual_orientation()
 
 
-## Unit tangent of a baked Curve2D at the given arc distance (curve-local).
-static func curve_tangent(curve: Curve2D, distance: float) -> Vector2:
-	var length := curve.get_baked_length()
-	var t := curve.sample_baked(clampf(distance + 1.0, 0.0, length)) \
-			- curve.sample_baked(clampf(distance - 1.0, 0.0, length))
-	if t.length_squared() <= 1e-10:
-		return Vector2.RIGHT
-	return t.normalized()
-
-
-## Unit tangent mapped through xform. Computed from two transformed points:
-## Transform2D * Vector2 includes translation, which would corrupt directions.
 static func transformed_tangent(curve: Curve2D, distance: float, xform: Transform2D) -> Vector2:
 	var length := curve.get_baked_length()
 	var a := xform * curve.sample_baked(clampf(distance - 1.0, 0.0, length))
@@ -261,7 +237,6 @@ static func transformed_tangent(curve: Curve2D, distance: float, xform: Transfor
 	return t.normalized()
 
 
-## Best-effort aim point of a node (centre methods preferred, else origin).
 static func target_center(target: Node2D) -> Vector2:
 	if target.has_method("get_center_global"):
 		return target.call("get_center_global")
@@ -286,7 +261,7 @@ func _check_target_interactions() -> void:
 			queue_free()
 			return
 
-	# Check enemies/emitters
+	# Check enemies
 	if is_reflected:
 		for enemy in get_tree().get_nodes_in_group("enemies"):
 			if not is_instance_valid(enemy) or not (enemy is Node2D):

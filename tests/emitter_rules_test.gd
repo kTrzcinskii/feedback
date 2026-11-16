@@ -92,7 +92,7 @@ func _test_spline_flight(world: Node2D) -> void:
 	var travel := 120.0 * 210.0 / TICKS_PER_SECOND
 	var overshoot := travel - curve.get_baked_length()
 	var exit_point := emitter.global_position + curve.sample_baked(curve.get_baked_length())
-	var tangent := ParryableProjectile.curve_tangent(curve, curve.get_baked_length())
+	var tangent := ParryableProjectile.transformed_tangent(curve, curve.get_baked_length(), Transform2D.IDENTITY)
 	var straight_expected := exit_point + tangent * overshoot
 	err = proj.global_position.distance_to(straight_expected)
 	_check(err < 3.0, "spline: continues straight along the exit tangent (off by %.2f px)" % err)
