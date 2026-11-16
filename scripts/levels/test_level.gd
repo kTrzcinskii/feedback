@@ -5,6 +5,9 @@ extends Node2D
 @export var fall_limit_y: float = 360.0
 @export var death_reset_delay: float = 0.35
 @export var room_subtitle: String = "01  /  THE PROVING HALL"
+## Extra room around the terrain union before projectiles count as out of
+## bounds.
+@export_range(0.0, 2000.0, 10.0, "suffix:px") var projectile_bounds_margin: float = 240.0
 
 @onready var player: PlayerCharacter = $CharacterBody2D as PlayerCharacter
 @onready var spawn_point: Marker2D = get_node_or_null("SpawnPoint") as Marker2D
@@ -13,9 +16,12 @@ var _initial_spawn_pos: Vector2 = Vector2.ZERO
 var _reset_pending: bool = false
 var _reset_timer: float = 0.0
 var _hud_label: Label = null
+var _projectile_bounds: Rect2 = Rect2()
+var _bounds_ready: bool = false
 
 
 func _ready() -> void:
+	add_to_group("level")
 	if spawn_point != null:
 		_initial_spawn_pos = spawn_point.global_position
 	elif player != null:
@@ -108,6 +114,56 @@ func reset_room() -> void:
 
 	if player != null:
 		player.reset_player_state(_initial_spawn_pos)
+
+
+## World rect (terrain union + margin) projectiles must stay inside. Computed
+## once, on first request, from the static bodies owned by this level.
+func get_projectile_bounds() -> Rect2:
+	if not _bounds_ready:
+		_projectile_bounds = _compute_world_bounds().grow(projectile_bounds_margin)
+		_bounds_ready = true
+	return _projectile_bounds
+
+
+func _compute_world_bounds() -> Rect2:
+	var rect := Rect2()
+	var found := false
+	for body in find_children("*", "StaticBody2D", true, true):
+		for child in (body as Node).find_children("*", "CollisionShape2D", false, false):
+			var collision := child as CollisionShape2D
+			if collision == null or collision.shape == null:
+				continue
+			var shape_rect := _shape_world_rect(collision)
+			if shape_rect.size == Vector2.ZERO:
+				continue
+			rect = shape_rect if not found else rect.merge(shape_rect)
+			found = true
+	return rect if found else rect
+
+
+## Axis-aligned world rect of a collision shape (rectangle / circle / segment
+## supported; anything else falls back to its origin point).
+func _shape_world_rect(collision: CollisionShape2D) -> Rect2:
+	var xform: Transform2D = collision.get_global_transform()
+	var shape := collision.shape
+	if shape is RectangleShape2D:
+		var half: Vector2 = (shape as RectangleShape2D).size * 0.5
+		return _rect_from_corners(
+				xform * Vector2(-half.x, -half.y),
+				xform * Vector2(half.x, half.y))
+	if shape is CircleShape2D:
+		var r: float = (shape as CircleShape2D).radius
+		var c: Vector2 = xform.origin
+		return Rect2(c - Vector2.ONE * r, Vector2.ONE * r * 2.0)
+	if shape is SegmentShape2D:
+		var seg := shape as SegmentShape2D
+		return _rect_from_corners(xform * seg.a, xform * seg.b)
+	return Rect2(xform.origin, Vector2.ZERO)
+
+
+static func _rect_from_corners(a: Vector2, b: Vector2) -> Rect2:
+	var pos := Vector2(minf(a.x, b.x), minf(a.y, b.y))
+	return Rect2(pos, (Vector2(maxf(a.x, b.x), maxf(a.y, b.y)) - pos).abs())
 
 
 func _on_player_died(_source: Object) -> void:

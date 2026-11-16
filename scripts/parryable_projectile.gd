@@ -13,6 +13,12 @@ const PROJECTILE_FRAMES: SpriteFrames = preload("res://assets/godot/projectile-f
 @export var direction: Vector2 = Vector2.LEFT
 @export var collision_radius: float = 12.0
 @export var max_lifetime: float = 8.0
+## Free the projectile when its flight segment hits static world geometry
+## (floors, walls, platforms). Bodies such as the player keep their own
+## contact rules.
+@export var die_on_world_contact: bool = true
+## Collision layers checked for world contact (default: layer 1 = terrain).
+@export_flags_2d_physics var world_collision_mask: int = 1
 
 var velocity: Vector2 = Vector2.ZERO
 var is_reflected: bool = false
@@ -33,12 +39,15 @@ var _ignored_player: Node2D = null
 var _lifetime: float = 0.0
 var _sprite: AnimatedSprite2D = null
 var _collision_shape: CollisionShape2D = null
+var _bounds: Rect2 = Rect2()
+var _has_bounds: bool = false
 
 
 func _ready() -> void:
 	add_to_group("parryable_attacks")
 	add_to_group("projectiles")
 	prev_global_position = global_position
+	_resolve_level_bounds()
 	if velocity.length_squared() <= 1e-6:
 		velocity = (direction.normalized() if direction.length_squared() > 1e-6 else Vector2.LEFT) * speed
 	else:
@@ -173,6 +182,13 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 		return
 
+	_check_world_contact()
+	if is_queued_for_deletion():
+		return
+	_check_out_of_bounds()
+	if is_queued_for_deletion():
+		return
+
 	if ignore_player_until_exit and is_instance_valid(_ignored_player):
 		var player_origin: Vector2 = _ignored_player.call("get_parry_origin_global") if _ignored_player.has_method("get_parry_origin_global") else _ignored_player.global_position
 		var player_radius: float = float(_ignored_player.call("get_hurtbox_radius")) if _ignored_player.has_method("get_hurtbox_radius") else 22.0
@@ -225,6 +241,40 @@ func _fly_homing(delta: float) -> void:
 	velocity = direction * speed
 	global_position += velocity * delta
 	_update_visual_orientation()
+
+
+## World contact: free on hitting static geometry. The per-tick segment
+## (prev -> current position) is swept through physics space, so tunneling
+## is impossible at any speed. Non-static bodies (player, enemies) keep
+## their own contact rules (Section 2.5).
+func _check_world_contact() -> void:
+	if not die_on_world_contact or not is_inside_tree():
+		return
+	var space := get_world_2d().direct_space_state
+	var query := PhysicsRayQueryParameters2D.create(
+			prev_global_position, global_position, world_collision_mask, [get_rid()])
+	query.collide_with_bodies = true
+	query.collide_with_areas = false
+	var hit := space.intersect_ray(query)
+	if not hit.is_empty() and hit["collider"] is StaticBody2D:
+		queue_free()
+
+
+## Out of bounds: free once the projectile leaves the level's world rect
+## (terrain union + margin, provided by the level node). When no level
+## provides bounds, max_lifetime remains the failsafe.
+func _check_out_of_bounds() -> void:
+	if _has_bounds and not _bounds.has_point(global_position):
+		queue_free()
+
+
+func _resolve_level_bounds() -> void:
+	for level in get_tree().get_nodes_in_group("level"):
+		if is_instance_valid(level) and level.has_method("get_projectile_bounds"):
+			_bounds = level.call("get_projectile_bounds")
+			_has_bounds = _bounds.size.x > 0.0 and _bounds.size.y > 0.0
+			return
+	_has_bounds = false
 
 
 static func transformed_tangent(curve: Curve2D, distance: float, xform: Transform2D) -> Vector2:
