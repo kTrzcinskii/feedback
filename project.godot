@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="Feedback"
-run/main_scene="uid://diy2gjpnkk4dp"
+run/main_scene="res://scenes/levels/progression_room_01.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+LevelTransition="*res://scripts/levels/level_transition.gd"
 
 [display]
 

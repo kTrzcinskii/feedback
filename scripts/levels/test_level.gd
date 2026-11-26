@@ -29,11 +29,37 @@ func _ready() -> void:
 	elif player != null:
 		_initial_spawn_pos = player.global_position
 
+	var transition_service := get_node_or_null("/root/LevelTransition") as LevelTransitionService
+	if transition_service != null:
+		var transition: Dictionary = transition_service.consume_pending_transition()
+		if not transition.is_empty():
+			_apply_transition_spawn(transition)
+
 	_setup_hud()
 	_update_hud()
 
 	if player != null:
 		player.player_died.connect(_on_player_died)
+
+
+func _apply_transition_spawn(transition: Dictionary) -> void:
+	if player == null:
+		push_error("Cannot apply room transition: the destination room has no player.")
+		return
+
+	var target_start_id: StringName = transition.get("start_id", &"")
+	var target_start: LevelStart = null
+	for node in find_children("*", "Marker2D", true, false):
+		if node is LevelStart and (node as LevelStart).start_id == target_start_id:
+			target_start = node as LevelStart
+			break
+	if target_start == null:
+		push_error("Room transition target start marker '%s' was not found." % target_start_id)
+		return
+
+	_initial_spawn_pos = target_start.global_position
+	player.reset_player_state(_initial_spawn_pos)
+	player.hp = clampi(int(transition.get("player_hp", player.max_hp)), 1, player.max_hp)
 
 
 func _setup_hud() -> void:
