@@ -8,6 +8,10 @@
 [ext_resource type="Texture2D" uid="uid://eykmdhi537a3" path="res://assets/sheets/player-parry.svg" id="6_2hyy3"]
 [ext_resource type="PackedScene" path="res://assets/godot/player-layered.tscn" id="7_layered"]
 [ext_resource type="Script" uid="uid://bxek5ynwcbn7r" path="res://scripts/player/player_animated_sprite.gd" id="8_sprite"]
+[ext_resource type="Script" path="res://scripts/player/parry_feedback.gd" id="9_feedback"]
+[ext_resource type="PackedScene" path="res://assets/godot/parry-fx-burst.tscn" id="10_burst"]
+[ext_resource type="AudioStream" path="res://assets/audio/parry-success.wav" id="11_success"]
+[ext_resource type="AudioStream" path="res://assets/audio/parry-failure.wav" id="12_failure"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_irmqu"]
 atlas = ExtResource("2_0lw5n")
@@ -280,3 +284,48 @@ script = ExtResource("8_sprite")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=318003285]
 position = Vector2(0, -30)
 shape = SubResource("CircleShape2D_i4dei")
+
+[node name="ParryFeedback" type="Node2D" parent="."]
+z_index = 2
+script = ExtResource("9_feedback")
+
+[node name="ActiveSector" type="Polygon2D" parent="ParryFeedback"]
+visible = false
+color = Color(0.68, 0.45, 1, 0.65)
+antialiased = true
+
+[node name="SuccessBurst" parent="ParryFeedback" instance=ExtResource("10_burst")]
+visible = false
+autoplay = ""
+
+[node name="FailureMark" type="Line2D" parent="ParryFeedback"]
+visible = false
+position = Vector2(0, -40)
+points = PackedVector2Array(-8, -8, 8, 8)
+width = 4.0
+default_color = Color(1, 0.32, 0.32, 1)
+antialiased = true
+
+[node name="CrossStroke" type="Line2D" parent="ParryFeedback/FailureMark"]
+rotation = 1.5707963
+points = PackedVector2Array(-8, -8, 8, 8)
+width = 4.0
+default_color = Color(1, 0.32, 0.32, 1)
+antialiased = true
+
+[node name="FailureTimer" type="Timer" parent="ParryFeedback"]
+wait_time = 0.3
+one_shot = true
+
+[node name="SuccessSound" type="AudioStreamPlayer" parent="ParryFeedback"]
+stream = ExtResource("11_success")
+volume_db = -4.0
+
+[node name="FailureSound" type="AudioStreamPlayer" parent="ParryFeedback"]
+stream = ExtResource("12_failure")
+volume_db = -4.0
+
+[connection signal="parry_succeeded" from="." to="ParryFeedback" method="_on_parry_succeeded"]
+[connection signal="parry_failed" from="." to="ParryFeedback" method="_on_parry_failed"]
+[connection signal="animation_finished" from="ParryFeedback/SuccessBurst" to="ParryFeedback/SuccessBurst" method="hide"]
+[connection signal="timeout" from="ParryFeedback/FailureTimer" to="ParryFeedback/FailureMark" method="hide"]

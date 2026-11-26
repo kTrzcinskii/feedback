@@ -3,6 +3,7 @@ extends CharacterBody2D
 
 signal parry_started(direction: Vector2, active_duration: float)
 signal parry_succeeded(target: Object, category: StringName, direction: Vector2, resulting_velocity: Vector2)
+signal parry_failed(projectile: ParryableProjectile)
 signal parry_window_ended(was_successful: bool)
 signal parry_cooldown_ended()
 signal player_damaged(source: Object, remaining_hp: int)
@@ -91,6 +92,7 @@ var sim_parry_pressed: bool = false
 @onready var player_visual: Node2D = get_node_or_null("PlayerVisual") as Node2D
 @onready var animation_tree: PlayerAnimationTree = get_node_or_null("PlayerVisual/AnimationTree") as PlayerAnimationTree
 @onready var animated_sprite: PlayerAnimatedSprite = get_node_or_null("AnimatedSprite2D") as PlayerAnimatedSprite
+@onready var _parry_feedback: ParryFeedback = get_node_or_null("ParryFeedback") as ParryFeedback
 var _parry_hitbox: Area2D = null
 var _parry_polygon: CollisionPolygon2D = null
 
@@ -183,6 +185,9 @@ func _set_parry_hitbox_enabled(enabled: bool) -> void:
 		_parry_hitbox.set_deferred("monitoring", enabled)
 		_parry_hitbox.set_deferred("monitorable", enabled)
 		_parry_hitbox.rotation = parry_direction.angle()
+	if _parry_feedback != null:
+		_parry_feedback.position = _parry_hitbox.position
+		_parry_feedback.show_active_sector(enabled, _parry_polygon.polygon, _parry_hitbox.rotation)
 
 
 func get_parry_origin_global() -> Vector2:
@@ -656,6 +661,7 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 		if dist <= (hurtbox_radius + hit_radius):
 			if attack is ParryableProjectile:
 				attack.queue_free()
+				parry_failed.emit(attack)
 			take_damage(1, attack, false)
 			if is_dead:
 				return
@@ -786,6 +792,8 @@ func reset_player_state(spawn_global_position: Vector2) -> void:
 	sim_jump_just_pressed = false
 	sim_parry_pressed = false
 	_set_parry_hitbox_enabled(false)
+	if _parry_feedback != null:
+		_parry_feedback.clear_outcomes()
 	interrupt_parry()
 	set_facing(false)
 	_set_locomotion_scale(1.0)
