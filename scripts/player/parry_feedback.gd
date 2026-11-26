@@ -7,7 +7,6 @@ extends Node2D
 
 @onready var _active_sector: Polygon2D = $ActiveSector
 @onready var _success_burst: AnimatedSprite2D = $SuccessBurst
-@onready var _failure_timer: Timer = $FailureTimer
 @onready var _success_sound: AudioStreamPlayer = $SuccessSound
 @onready var _failure_sound: AudioStreamPlayer = $FailureSound
 
@@ -27,7 +26,6 @@ func show_active_sector(active: bool, polygon: PackedVector2Array, direction: fl
 func clear_outcomes() -> void:
 	_success_burst.stop()
 	_success_burst.hide()
-	_failure_timer.stop()
 	_success_sound.stop()
 	_failure_sound.stop()
 
@@ -42,5 +40,4 @@ func _on_parry_succeeded(_target: Object, _category: StringName, _direction: Vec
 
 
 func _on_parry_failed(_projectile: ParryableProjectile) -> void:
-	_failure_timer.start()
 	_failure_sound.play()

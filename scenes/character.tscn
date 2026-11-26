@@ -302,10 +302,6 @@ antialiased = true
 visible = false
 autoplay = ""
 
-[node name="FailureTimer" type="Timer" parent="ParryFeedback" unique_id=1248089939]
-wait_time = 0.3
-one_shot = true
-
 [node name="SuccessSound" type="AudioStreamPlayer" parent="ParryFeedback" unique_id=1055618116]
 stream = ExtResource("11_success")
 volume_db = -4.0
