@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Feedback"
-run/main_scene="uid://f26hh4k5hprj"
+run/main_scene="uid://diy2gjpnkk4dp"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 

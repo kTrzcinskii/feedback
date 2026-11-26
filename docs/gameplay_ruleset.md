@@ -287,6 +287,18 @@ These hazards cannot be neutralized through ordinary parrying unless explicitly 
 
 Upon death, the level is restarted according to the existing project requirements.
 
+### 3.7. Ranged enemies
+
+Ranged enemies can use one of three movement modes:
+
+- **Patrol:** Move horizontally between configurable bounds relative to their spawn position, reversing direction at either bound.
+- **Chase:** Move horizontally toward the player's position and stop within a configurable distance. This mode does not navigate platforms or obstacles.
+- **Stationary:** Remain in place and act as a turret.
+
+All modes can fire parryable projectiles at the player. An enemy only fires while the player is within its configured attack range. Shots are aimed at the player's current position when launched and travel in a straight line. The time between shots, first-shot delay, projectile speed, and attack range are configurable per enemy.
+
+Reflected projectiles damage enemies. Enemy maximum HP and damage taken per reflected projectile are configurable; an enemy is defeated when its HP reaches zero. Enemy contact remains harmful to the player according to Section 3.6.
+
 ## 4. Initial tunable parameters
 
 The following table collects the parameters that should be exposed for testing and balancing.
@@ -306,3 +318,19 @@ The following table collects the parameters that should be exposed for testing a
 | Surface parry impulse | TBD | CH/s |
 
 where CH is character height. I guess it would be convenient to make units dependent on player size, but we will figure it out during development.
+
+Initial ranged-enemy values are also exposed for balancing:
+
+| Parameter | Initial value | Unit |
+| --- | ---: | --- |
+| Patrol movement speed | 100 | px/s |
+| Patrol bounds | ±160 | px from spawn |
+| Chase movement speed | 100 | px/s |
+| Chase stop distance | 18 | px |
+| Gravity | 1200 | px/s² |
+| Attack range | 600 | px |
+| Initial shot delay | 0.5 | s |
+| Shot interval | 1.5 | s |
+| Projectile speed | 340 | px/s |
+| Enemy maximum HP | 2 | HP |
+| Damage per reflected projectile | 1 | HP |

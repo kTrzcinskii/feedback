@@ -1,0 +1,206 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://cc0i0mmusg75"]
+
+[ext_resource type="Texture2D" uid="uid://b8uu7ml57jad3" path="res://assets/sheets/sentinel-idle.svg" id="1_idle"]
+[ext_resource type="Texture2D" uid="uid://2uoexexe4jja" path="res://assets/sheets/sentinel-move.svg" id="2_move"]
+[ext_resource type="Texture2D" uid="uid://ur814b8k01qo" path="res://assets/sheets/sentinel-shoot.svg" id="3_shoot"]
+[ext_resource type="Texture2D" uid="uid://copbknq704gfa" path="res://assets/sheets/sentinel-hurt.svg" id="4_hurt"]
+
+[sub_resource type="AtlasTexture" id="Hurt_0"]
+atlas = ExtResource("4_hurt")
+region = Rect2(0, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Hurt_1"]
+atlas = ExtResource("4_hurt")
+region = Rect2(96, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Hurt_2"]
+atlas = ExtResource("4_hurt")
+region = Rect2(192, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Hurt_3"]
+atlas = ExtResource("4_hurt")
+region = Rect2(288, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Idle_0"]
+atlas = ExtResource("1_idle")
+region = Rect2(0, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Idle_1"]
+atlas = ExtResource("1_idle")
+region = Rect2(96, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Idle_2"]
+atlas = ExtResource("1_idle")
+region = Rect2(192, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Idle_3"]
+atlas = ExtResource("1_idle")
+region = Rect2(288, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Move_0"]
+atlas = ExtResource("2_move")
+region = Rect2(0, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Move_1"]
+atlas = ExtResource("2_move")
+region = Rect2(96, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Move_2"]
+atlas = ExtResource("2_move")
+region = Rect2(192, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Move_3"]
+atlas = ExtResource("2_move")
+region = Rect2(288, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Move_4"]
+atlas = ExtResource("2_move")
+region = Rect2(384, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Move_5"]
+atlas = ExtResource("2_move")
+region = Rect2(480, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Move_6"]
+atlas = ExtResource("2_move")
+region = Rect2(576, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Move_7"]
+atlas = ExtResource("2_move")
+region = Rect2(672, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Shoot_0"]
+atlas = ExtResource("3_shoot")
+region = Rect2(0, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Shoot_1"]
+atlas = ExtResource("3_shoot")
+region = Rect2(96, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Shoot_2"]
+atlas = ExtResource("3_shoot")
+region = Rect2(192, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Shoot_3"]
+atlas = ExtResource("3_shoot")
+region = Rect2(288, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Shoot_4"]
+atlas = ExtResource("3_shoot")
+region = Rect2(384, 0, 96, 96)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Shoot_5"]
+atlas = ExtResource("3_shoot")
+region = Rect2(480, 0, 96, 96)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 0.8,
+"texture": SubResource("Hurt_0")
+}, {
+"duration": 0.9,
+"texture": SubResource("Hurt_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Hurt_2")
+}, {
+"duration": 1.2,
+"texture": SubResource("Hurt_3")
+}],
+"loop": 0,
+"name": &"hurt",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 2.6,
+"texture": SubResource("Idle_0")
+}, {
+"duration": 2.6,
+"texture": SubResource("Idle_1")
+}, {
+"duration": 2.6,
+"texture": SubResource("Idle_2")
+}, {
+"duration": 2.6,
+"texture": SubResource("Idle_3")
+}],
+"loop": 1,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Move_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Move_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Move_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Move_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("Move_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("Move_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("Move_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("Move_7")
+}],
+"loop": 1,
+"name": &"move",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.2,
+"texture": SubResource("Shoot_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("Shoot_1")
+}, {
+"duration": 0.7,
+"texture": SubResource("Shoot_2")
+}, {
+"duration": 0.7,
+"texture": SubResource("Shoot_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("Shoot_4")
+}, {
+"duration": 1.4,
+"texture": SubResource("Shoot_5")
+}],
+"loop": 0,
+"name": &"shoot",
+"speed": 10.0
+}]
+metadata/pipeline_anchor = Vector2(48, 80)
