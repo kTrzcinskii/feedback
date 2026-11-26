@@ -22,6 +22,9 @@ func _run() -> void:
 	var failure_mark := feedback.get_node("FailureMark") as Line2D
 	var success_sound := feedback.get_node("SuccessSound") as AudioStreamPlayer
 	var failure_sound := feedback.get_node("FailureSound") as AudioStreamPlayer
+	_check(success_sound.stream.resource_path == "res://assets/audio/parry-success.wav"
+			and failure_sound.stream.resource_path == "res://assets/audio/parry-failure.wav",
+			"tones are the default cues")
 
 	_launch_at_player(player)
 	await _tick()
@@ -74,8 +77,32 @@ func _run() -> void:
 
 	player.queue_free()
 	await process_frame
+	await _check_voice_cues()
 	print("parry_feedback_test: %s (%d failure(s))" % ["FAIL" if _failures else "OK", _failures])
 	quit(1 if _failures else 0)
+
+
+func _check_voice_cues() -> void:
+	var player := PLAYER.instantiate() as PlayerCharacter
+	var feedback := player.get_node("ParryFeedback") as ParryFeedback
+	feedback.use_voice_cues = true
+	root.add_child(player)
+	var success_sound := feedback.get_node("SuccessSound") as AudioStreamPlayer
+	var failure_sound := feedback.get_node("FailureSound") as AudioStreamPlayer
+	_check(success_sound.stream.resource_path == "res://assets/audio/parry-success-voice.wav"
+			and failure_sound.stream.resource_path == "res://assets/audio/parry-failure-voice.wav",
+			"opting in selects the two voice clips")
+
+	player.parry_succeeded.emit(null, &"projectile", Vector2.RIGHT, Vector2.ZERO)
+	player.parry_failed.emit(null)
+	await _tick()
+	_check(success_sound.playing and failure_sound.playing, "both voice cues can play together")
+	player.reset_player_state(Vector2.ZERO)
+	_check(not success_sound.playing and not failure_sound.playing, "reset stops both voice cues")
+
+	player.queue_free()
+	# Let the audio mixer release stopped streams before the headless process exits.
+	await create_timer(0.15).timeout
 
 
 func _launch_at_player(player: PlayerCharacter, side: Vector2 = Vector2.RIGHT) -> ParryableProjectile:

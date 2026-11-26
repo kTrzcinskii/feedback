@@ -12,6 +12,8 @@
 [ext_resource type="PackedScene" path="res://assets/godot/parry-fx-burst.tscn" id="10_burst"]
 [ext_resource type="AudioStream" path="res://assets/audio/parry-success.wav" id="11_success"]
 [ext_resource type="AudioStream" path="res://assets/audio/parry-failure.wav" id="12_failure"]
+[ext_resource type="AudioStream" path="res://assets/audio/parry-success-voice.wav" id="13_success_voice"]
+[ext_resource type="AudioStream" path="res://assets/audio/parry-failure-voice.wav" id="14_failure_voice"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_irmqu"]
 atlas = ExtResource("2_0lw5n")
@@ -288,6 +290,8 @@ shape = SubResource("CircleShape2D_i4dei")
 [node name="ParryFeedback" type="Node2D" parent="."]
 z_index = 2
 script = ExtResource("9_feedback")
+success_voice = ExtResource("13_success_voice")
+failure_voice = ExtResource("14_failure_voice")
 
 [node name="ActiveSector" type="Polygon2D" parent="ParryFeedback"]
 visible = false
