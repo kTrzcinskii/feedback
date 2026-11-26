@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://f0y8nd87o0kv"]
+
+[ext_resource type="Script" uid="uid://dfa2vgw8us87x" path="res://scripts/enemies/ranged_enemy.gd" id="1_enemy"]
+[ext_resource type="PackedScene" path="res://scenes/hazards/projectile_emitter.tscn" id="2_emitter"]
+[ext_resource type="SpriteFrames" path="res://assets/godot/sentinel-animations.tres" id="3_frames"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 22.0
+
+[node name="RangedEnemy" type="CharacterBody2D" unique_id=661223619 groups=["enemies"]]
+floor_snap_length = 8.0
+script = ExtResource("1_enemy")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=39786544]
+sprite_frames = ExtResource("3_frames")
+animation = &"idle"
+autoplay = "idle"
+centered = false
+offset = Vector2(-48, -80)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=249080815]
+position = Vector2(0, -30)
+shape = SubResource("CircleShape2D_body")
+
+[node name="ProjectileEmitter" parent="." unique_id=662355385 instance=ExtResource("2_emitter")]
+visible = false
+position = Vector2(0, -52)
+auto_start = false
