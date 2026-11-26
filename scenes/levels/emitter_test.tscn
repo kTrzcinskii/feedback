@@ -2,6 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://bjrihl1iy3ey8" path="res://scenes/character.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://cb4u21dhutnsp" path="res://scripts/levels/test_level.gd" id="2_tlevel"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_exit.tscn" id="7_mwd0g"]
+[ext_resource type="PackedScene" uid="uid://dmjfb5fpxmhkf" path="res://scenes/levels/ranged_enemy_test.tscn" id="8_8bnj1"]
 [ext_resource type="PackedScene" path="res://scenes/hazards/projectile_emitter.tscn" id="emitter"]
 [ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="floor"]
 [ext_resource type="PackedScene" uid="uid://xd4jpyirp3pd" path="res://scenes/terrain/platform.tscn" id="platform"]
@@ -117,3 +119,7 @@ limit_left = -40
 limit_top = -800
 limit_right = 1960
 limit_bottom = 256
+
+[node name="ExitToRoom02" parent="." unique_id=1429641698 instance=ExtResource("7_mwd0g")]
+position = Vector2(1788, -2)
+destination_level = ExtResource("8_8bnj1")

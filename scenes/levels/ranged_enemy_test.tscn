@@ -1,20 +1,20 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://dmjfb5fpxmhkf"]
 
 [ext_resource type="PackedScene" uid="uid://bjrihl1iy3ey8" path="res://scenes/character.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://cb4u21dhutnsp" path="res://scripts/levels/test_level.gd" id="2_tlevel"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/ranged_enemy.tscn" id="3_enemy"]
+[ext_resource type="PackedScene" uid="uid://f0y8nd87o0kv" path="res://scenes/enemies/ranged_enemy.tscn" id="3_enemy"]
 [ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="4_floor"]
 [ext_resource type="PackedScene" uid="uid://xd4jpyirp3pd" path="res://scenes/terrain/platform.tscn" id="5_platform"]
 [ext_resource type="PackedScene" uid="uid://eema2euvy553" path="res://scenes/terrain/wall.tscn" id="6_wall"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_start.tscn" id="7_wrpyv"]
 
-[node name="RangedEnemyLab" type="Node2D"]
+[node name="RangedEnemyLab" type="Node2D" unique_id=1551402855]
 script = ExtResource("2_tlevel")
 room_subtitle = "03  /  RANGED ENEMY LAB"
-fall_limit_y = 360.0
 
-[node name="Labels" type="Node2D" parent="."]
+[node name="Labels" type="Node2D" parent="." unique_id=268649608]
 
-[node name="PatrolLabel" type="Label" parent="Labels"]
+[node name="PatrolLabel" type="Label" parent="Labels" unique_id=1613891487]
 offset_left = 80.0
 offset_top = -440.0
 offset_right = 460.0
@@ -23,16 +23,16 @@ theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
 theme_override_font_sizes/font_size = 13
 text = "A  /  PATROL SENTINEL"
 
-[node name="PatrolDetails" type="Label" parent="Labels"]
+[node name="PatrolDetails" type="Label" parent="Labels" unique_id=1797763592]
 offset_left = 80.0
 offset_top = -416.0
 offset_right = 560.0
 offset_bottom = -396.0
-theme_override_colors/font_color = Color(0.66, 0.73, 0.80, 1)
+theme_override_colors/font_color = Color(0.66, 0.73, 0.8, 1)
 theme_override_font_sizes/font_size = 11
 text = "BOUNDS ±140PX   /   1.6S SHOT INTERVAL"
 
-[node name="ChaseLabel" type="Label" parent="Labels"]
+[node name="ChaseLabel" type="Label" parent="Labels" unique_id=1830848669]
 offset_left = 1000.0
 offset_top = -440.0
 offset_right = 1390.0
@@ -41,16 +41,16 @@ theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
 theme_override_font_sizes/font_size = 13
 text = "B  /  CHASER"
 
-[node name="ChaseDetails" type="Label" parent="Labels"]
+[node name="ChaseDetails" type="Label" parent="Labels" unique_id=1087405384]
 offset_left = 1000.0
 offset_top = -416.0
 offset_right = 1470.0
 offset_bottom = -396.0
-theme_override_colors/font_color = Color(0.66, 0.73, 0.80, 1)
+theme_override_colors/font_color = Color(0.66, 0.73, 0.8, 1)
 theme_override_font_sizes/font_size = 11
 text = "FOLLOWS PLAYER HORIZONTALLY   /   2.0S SHOT INTERVAL"
 
-[node name="TurretLabel" type="Label" parent="Labels"]
+[node name="TurretLabel" type="Label" parent="Labels" unique_id=6226903]
 offset_left = 1960.0
 offset_top = -440.0
 offset_right = 2390.0
@@ -59,53 +59,52 @@ theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
 theme_override_font_sizes/font_size = 13
 text = "C  /  STATIONARY TURRET"
 
-[node name="TurretDetails" type="Label" parent="Labels"]
+[node name="TurretDetails" type="Label" parent="Labels" unique_id=307982213]
 offset_left = 1960.0
 offset_top = -416.0
 offset_right = 2430.0
 offset_bottom = -396.0
-theme_override_colors/font_color = Color(0.66, 0.73, 0.80, 1)
+theme_override_colors/font_color = Color(0.66, 0.73, 0.8, 1)
 theme_override_font_sizes/font_size = 11
 text = "HOLDS POSITION   /   1.2S SHOT INTERVAL   /   3 HP"
 
-[node name="Floors" type="Node2D" parent="."]
+[node name="Floors" type="Node2D" parent="." unique_id=681027203]
 
-[node name="Ground" parent="Floors" instance=ExtResource("4_floor")]
+[node name="Ground" parent="Floors" unique_id=1864441540 instance=ExtResource("4_floor")]
 size = Vector2(2880, 256)
 
-[node name="Walls" type="Node2D" parent="."]
+[node name="Walls" type="Node2D" parent="." unique_id=1477493879]
 
-[node name="LeftWall" parent="Walls" instance=ExtResource("6_wall")]
+[node name="LeftWall" parent="Walls" unique_id=730773477 instance=ExtResource("6_wall")]
 position = Vector2(-24, -360)
 size = Vector2(48, 800)
 
-[node name="RightWall" parent="Walls" instance=ExtResource("6_wall")]
+[node name="RightWall" parent="Walls" unique_id=1186131468 instance=ExtResource("6_wall")]
 position = Vector2(2904, -360)
 size = Vector2(48, 800)
 
-[node name="Platforms" type="Node2D" parent="."]
+[node name="Platforms" type="Node2D" parent="." unique_id=488787153]
 
-[node name="PatrolLedge" parent="Platforms" instance=ExtResource("5_platform")]
+[node name="PatrolLedge" parent="Platforms" unique_id=648331198 instance=ExtResource("5_platform")]
 position = Vector2(520, -64)
 size = Vector2(420, 32)
 
-[node name="ChaseStepLow" parent="Platforms" instance=ExtResource("5_platform")]
+[node name="ChaseStepLow" parent="Platforms" unique_id=631103770 instance=ExtResource("5_platform")]
 position = Vector2(1130, -48)
 size = Vector2(180, 32)
 
-[node name="ChaseStepHigh" parent="Platforms" instance=ExtResource("5_platform")]
+[node name="ChaseStepHigh" parent="Platforms" unique_id=625924399 instance=ExtResource("5_platform")]
 position = Vector2(1790, -88)
 size = Vector2(200, 32)
 
-[node name="TurretLedge" parent="Platforms" instance=ExtResource("5_platform")]
+[node name="TurretLedge" parent="Platforms" unique_id=398892525 instance=ExtResource("5_platform")]
 position = Vector2(2420, -64)
 size = Vector2(320, 32)
 
-[node name="Enemies" type="Node2D" parent="."]
+[node name="Enemies" type="Node2D" parent="." unique_id=808111405]
 
-[node name="PatrolSentinel" parent="Enemies" instance=ExtResource("3_enemy")]
+[node name="PatrolSentinel" parent="Enemies" unique_id=587351079 instance=ExtResource("3_enemy")]
 position = Vector2(520, -80)
-movement_type = 0
 movement_speed = 90.0
 patrol_left_offset = -140.0
 patrol_right_offset = 140.0
@@ -113,34 +112,33 @@ attack_range = 650.0
 attack_interval = 1.6
 projectile_speed = 300.0
 
-[node name="ChaserSentinel" parent="Enemies" instance=ExtResource("3_enemy")]
+[node name="ChaserSentinel" parent="Enemies" unique_id=1328598794 instance=ExtResource("3_enemy")]
 position = Vector2(1480, 0)
 movement_type = 1
 movement_speed = 120.0
 chase_stop_distance = 32.0
 attack_range = 700.0
-initial_shot_delay = 0.6
 attack_interval = 2.0
+initial_shot_delay = 0.6
 projectile_speed = 320.0
 
-[node name="StationarySentinel" parent="Enemies" instance=ExtResource("3_enemy")]
+[node name="StationarySentinel" parent="Enemies" unique_id=1565804083 instance=ExtResource("3_enemy")]
 position = Vector2(2420, -80)
 movement_type = 2
 attack_range = 800.0
 attack_interval = 1.2
-projectile_speed = 340.0
 max_hp = 3
 
-[node name="SpawnPoint" type="Marker2D" parent="."]
+[node name="CharacterBody2D" parent="." unique_id=906369106 instance=ExtResource("1_player")]
 position = Vector2(160, 0)
 
-[node name="CharacterBody2D" parent="." instance=ExtResource("1_player")]
-position = Vector2(160, 0)
-
-[node name="Camera2D" type="Camera2D" parent="CharacterBody2D"]
+[node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=1133458630]
 position = Vector2(40, -160)
 zoom = Vector2(0.95, 0.95)
 limit_left = -40
 limit_top = -800
 limit_right = 2920
 limit_bottom = 256
+
+[node name="SpawnPoint" parent="." unique_id=2145357937 instance=ExtResource("7_wrpyv")]
+position = Vector2(162, -31)

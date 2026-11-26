@@ -1,0 +1,44 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/test_level.gd" id="1_level"]
+[ext_resource type="PackedScene" path="res://scenes/character.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="3_floor"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_start.tscn" id="4_start"]
+[ext_resource type="PackedScene" path="res://scenes/levels/level_exit.tscn" id="5_exit"]
+[ext_resource type="PackedScene" path="res://scenes/levels/progression_room_02.tscn" id="6_room"]
+
+[node name="ProgressionRoom01" type="Node2D"]
+script = ExtResource("1_level")
+room_subtitle = "01  /  FIRST STEPS"
+
+[node name="RoomLabel" type="Label" parent="."]
+offset_left = 320.0
+offset_top = -184.0
+offset_right = 960.0
+offset_bottom = -144.0
+theme_override_colors/font_color = Color(0.494, 0.557, 0.62, 1)
+theme_override_font_sizes/font_size = 24
+text = "ROOM 01  /  WALK TO THE PORTAL"
+
+[node name="Ground" parent="." instance=ExtResource("3_floor")]
+size = Vector2(1280, 128)
+
+[node name="SpawnPoint" parent="." instance=ExtResource("4_start")]
+position = Vector2(96, 8)
+start_id = &"entry"
+
+[node name="CharacterBody2D" parent="." instance=ExtResource("2_player")]
+position = Vector2(96, 8)
+
+[node name="Camera2D" type="Camera2D" parent="CharacterBody2D"]
+position = Vector2(40, -160)
+zoom = Vector2(0.95, 0.95)
+limit_left = -40
+limit_top = -360
+limit_right = 1320
+limit_bottom = 240
+
+[node name="ExitToRoom02" parent="." instance=ExtResource("5_exit")]
+position = Vector2(1120, 0)
+destination_level = ExtResource("6_room")
+destination_start_id = &"entry"
