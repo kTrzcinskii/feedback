@@ -5,3 +5,6 @@
 # IDE and local agent directories
 .idea/
 skills/
+
+# Exported game versions
+exports
