@@ -292,36 +292,31 @@ static func target_center(target: Node2D) -> Vector2:
 
 
 func _check_target_interactions() -> void:
-	if is_queued_for_deletion():
+	if not is_reflected or is_queued_for_deletion():
 		return
 
-	# Check switches
-	for sw in get_tree().get_nodes_in_group("switches"):
-		if not is_instance_valid(sw) or not (sw is Node2D):
+	for node in get_tree().get_nodes_in_group("switches"):
+		var puzzle_switch := node as EnvSwitch
+		if puzzle_switch == null:
 			continue
-		var sw_node := sw as Node2D
-		var sw_radius: float = float(sw_node.call("get_hit_radius")) if sw_node.has_method("get_hit_radius") else 28.0
-		if _segment_distance_to_point(prev_global_position, global_position, sw_node.global_position) <= (collision_radius + sw_radius):
-			if sw_node.has_method("on_hit_by_projectile"):
-				sw_node.call("on_hit_by_projectile", self)
+		var distance := _segment_distance_to_point(prev_global_position, global_position, puzzle_switch.global_position)
+		if distance <= collision_radius + puzzle_switch.hit_radius and puzzle_switch.on_hit_by_projectile(self):
 			queue_free()
 			return
 
-	# Check enemies
-	if is_reflected:
-		for enemy in get_tree().get_nodes_in_group("enemies"):
-			if not is_instance_valid(enemy) or not (enemy is Node2D):
-				continue
-			if enemy.has_method("is_defeated") and bool(enemy.call("is_defeated")):
-				continue
-			var enemy_node := enemy as Node2D
-			var enemy_center: Vector2 = enemy_node.call("get_center_global") if enemy_node.has_method("get_center_global") else (enemy_node.global_position + Vector2(0, -32))
-			var enemy_radius: float = float(enemy_node.call("get_hit_radius")) if enemy_node.has_method("get_hit_radius") else 28.0
-			if _segment_distance_to_point(prev_global_position, global_position, enemy_center) <= (collision_radius + enemy_radius):
-				if enemy_node.has_method("on_hit_by_reflected_projectile"):
-					enemy_node.call("on_hit_by_reflected_projectile", self)
-				queue_free()
-				return
+	for enemy in get_tree().get_nodes_in_group("enemies"):
+		if not is_instance_valid(enemy) or not (enemy is Node2D):
+			continue
+		if enemy.has_method("is_defeated") and bool(enemy.call("is_defeated")):
+			continue
+		var enemy_node := enemy as Node2D
+		var enemy_center: Vector2 = enemy_node.call("get_center_global") if enemy_node.has_method("get_center_global") else (enemy_node.global_position + Vector2(0, -32))
+		var enemy_radius: float = float(enemy_node.call("get_hit_radius")) if enemy_node.has_method("get_hit_radius") else 28.0
+		if _segment_distance_to_point(prev_global_position, global_position, enemy_center) <= (collision_radius + enemy_radius):
+			if enemy_node.has_method("on_hit_by_reflected_projectile"):
+				enemy_node.call("on_hit_by_reflected_projectile", self)
+			queue_free()
+			return
 
 
 static func _segment_distance_to_point(a: Vector2, b: Vector2, p: Vector2) -> float:
