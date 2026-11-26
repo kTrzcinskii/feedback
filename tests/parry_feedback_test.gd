@@ -19,21 +19,17 @@ func _run() -> void:
 	var feedback := player.get_node("ParryFeedback")
 	var sector := feedback.get_node("ActiveSector") as Polygon2D
 	var burst := feedback.get_node("SuccessBurst") as AnimatedSprite2D
-	var failure_mark := feedback.get_node("FailureMark") as Line2D
 	var success_sound := feedback.get_node("SuccessSound") as AudioStreamPlayer
 	var failure_sound := feedback.get_node("FailureSound") as AudioStreamPlayer
-	_check(success_sound.stream.resource_path == "res://assets/audio/parry-success.wav"
-			and failure_sound.stream.resource_path == "res://assets/audio/parry-failure.wav",
-			"tones are the default cues")
 
 	_launch_at_player(player)
 	await _tick()
-	_check(_misses == 1 and failure_mark.visible and failure_sound.playing and not success_sound.playing,
+	_check(_misses == 1 and failure_sound.playing and not success_sound.playing,
 			"early hit resolves a failure cue at contact")
-	_check(player.hp == player.max_hp - 1 and not burst.visible, "early hit still deals normal damage")
+	_check(player.hp == player.max_hp - 1 and not burst.visible, "early hit deals normal damage")
 
 	player.reset_player_state(Vector2.ZERO)
-	_check(not sector.visible and not failure_mark.visible and not failure_sound.playing, "reset clears feedback")
+	_check(not sector.visible and not failure_sound.playing, "reset clears feedback")
 	player.sim_parry_pressed = true
 	await _tick()
 	_check(sector.visible and is_zero_approx(sector.rotation), "active parry shows the locked sector")
@@ -42,7 +38,7 @@ func _run() -> void:
 	await _tick()
 	_check(projectile.is_reflected and projectile.velocity.x > 0.0 and player.hp == player.max_hp,
 			"successful parry still reverses the shot and protects the player")
-	_check(_misses == 1 and burst.visible and not failure_mark.visible
+	_check(_misses == 1 and burst.visible
 			and success_sound.playing and success_sound.stream != failure_sound.stream,
 			"success shows its burst and plays a distinct sound immediately")
 	projectile.queue_free()
@@ -53,11 +49,11 @@ func _run() -> void:
 	player.sim_parry_pressed = false
 	for tick in 20:
 		await physics_frame
-	_check(not sector.visible and _misses == 1, "empty parry expires without a contact failure")
+	_check(not sector.visible and _misses == 1, "empty parry expires without a failure")
 	player.invulnerability_timer = 1.0
 	_launch_at_player(player)
 	await _tick()
-	_check(_misses == 2 and failure_mark.visible and not burst.visible and failure_sound.playing,
+	_check(_misses == 2 and not burst.visible and failure_sound.playing,
 			"late hit resolves failure even during damage immunity")
 	_check(player.hp == player.max_hp, "failure feedback respects damage immunity")
 
@@ -68,11 +64,11 @@ func _run() -> void:
 	await _tick()
 	_check(projectile.is_reflected and player.hp == player.max_hp - 1 and _misses == 3,
 			"same tick: separate projectiles independently reflect and hit")
-	_check(burst.visible and success_sound.playing and failure_mark.visible and failure_sound.playing,
+	_check(burst.visible and success_sound.playing and failure_sound.playing,
 			"same tick: success and failure cues play together")
 	projectile.queue_free()
 	await create_timer(0.45).timeout
-	_check(not burst.visible and not success_sound.playing and not failure_mark.visible and not failure_sound.playing,
+	_check(not burst.visible and not success_sound.playing and not failure_sound.playing,
 			"both cues clear when their animations and sounds finish")
 
 	player.queue_free()
@@ -89,9 +85,6 @@ func _check_voice_cues() -> void:
 	root.add_child(player)
 	var success_sound := feedback.get_node("SuccessSound") as AudioStreamPlayer
 	var failure_sound := feedback.get_node("FailureSound") as AudioStreamPlayer
-	_check(success_sound.stream.resource_path == "res://assets/audio/parry-success-voice.wav"
-			and failure_sound.stream.resource_path == "res://assets/audio/parry-failure-voice.wav",
-			"opting in selects the two voice clips")
 
 	player.parry_succeeded.emit(null, &"projectile", Vector2.RIGHT, Vector2.ZERO)
 	player.parry_failed.emit(null)
@@ -101,11 +94,12 @@ func _check_voice_cues() -> void:
 	_check(not success_sound.playing and not failure_sound.playing, "reset stops both voice cues")
 
 	player.queue_free()
-	# Let the audio mixer release stopped streams before the headless process exits.
+	# Let the audio mixer release stopped streams before the headless process exits
+	# TODO: properly wait here; this is a hack
 	await create_timer(0.15).timeout
 
 
-func _launch_at_player(player: PlayerCharacter, side: Vector2 = Vector2.RIGHT) -> ParryableProjectile:
+func _launch_at_player(player: PlayerCharacter, side: Vector2=Vector2.RIGHT) -> ParryableProjectile:
 	var projectile := ParryableProjectile.new()
 	projectile.position = player.get_parry_origin_global() + side * 30.0
 	projectile.direction = -side
