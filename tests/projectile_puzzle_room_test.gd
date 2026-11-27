@@ -1,6 +1,7 @@
 extends SceneTree
 
 const ROOM := preload("res://scenes/levels/projectile_puzzle_room.tscn")
+const EMITTER_LAB_PATH := "res://scenes/levels/emitter_test.tscn"
 
 var failures := 0
 
@@ -18,7 +19,6 @@ func _run() -> void:
 	var door: EnvDoor = room.get_node("Door")
 	var puzzle_switch: EnvSwitch = room.get_node("Switch")
 	var emitter: ProjectileEmitter = room.get_node("ProjectileEmitter")
-	var completion_label: Label = room.get_node("Exit/CompletionLabel")
 	player.use_simulated_input = true
 	emitter.stop_firing()
 
@@ -27,7 +27,6 @@ func _run() -> void:
 	await _wait_physics_frames(95)
 	_check(player.hp < player.max_hp, "Incoming shot passes the switch and hits the player")
 	_check(not puzzle_switch.is_activated and not door.is_open, "Incoming shot leaves the door closed")
-	_check(not completion_label.visible, "Room starts incomplete")
 
 	player.sim_move_dir = Vector2.RIGHT
 	await _wait_physics_frames(90)
@@ -38,7 +37,44 @@ func _run() -> void:
 	_check(player.global_position.x < door.global_position.x, "Walking and jumping cannot bypass the closed door")
 
 	room.reset_room()
-	await _wait_physics_frames(5)
+	await _parry_next_shot(player)
+	_check(player.hp == player.max_hp, "Parry protects the player from the reflected shot")
+	_check(puzzle_switch.is_activated and door.is_open, "Reflected shot opens the door")
+
+	Input.action_press("Restart")
+	await _wait_physics_frames(2)
+	Input.action_release("Restart")
+	_check(not puzzle_switch.is_activated and not door.is_open, "Restart closes the door and resets the switch")
+	_check(is_equal_approx(player.global_position.x, room.spawn_point.global_position.x),
+			"Restart returns the player to spawn")
+	_check(emitter.is_firing() and get_nodes_in_group("projectiles").is_empty(),
+			"Restart clears projectiles and starts the emission cycle again")
+
+	await _parry_next_shot(player)
+	_check(puzzle_switch.is_activated and door.is_open, "The gate can be reopened after restart")
+	emitter.stop_firing()
+	player.hp = player.max_hp - 1
+	var expected_hp := player.hp
+	player.sim_move_dir = Vector2.RIGHT
+
+	for frame in range(150):
+		await physics_frame
+		if current_scene != null and current_scene.scene_file_path == EMITTER_LAB_PATH:
+			break
+	var destination := current_scene as TestLevel
+	var reached_lab := destination != null and destination.scene_file_path == EMITTER_LAB_PATH
+	_check(reached_lab, "Walking into the portal loads the emitter lab")
+	if reached_lab:
+		_check(destination.player.global_position.distance_to(destination.spawn_point.global_position) < 1.0,
+				"Portal places the player at the lab entry")
+		_check(destination.player.hp == expected_hp, "Portal carries HP into the lab (expected %d, got %d)"
+				% [expected_hp, destination.player.hp])
+
+	print("projectile_puzzle_room_test: %s (%d failure(s))" % ["FAIL" if failures else "OK", failures])
+	quit(1 if failures else 0)
+
+
+func _parry_next_shot(player: PlayerCharacter) -> void:
 	for frame in range(150):
 		var projectiles := get_nodes_in_group("projectiles")
 		if not projectiles.is_empty():
@@ -48,30 +84,9 @@ func _run() -> void:
 		await physics_frame
 	player.sim_parry_dir = Vector2.RIGHT
 	player.sim_parry_pressed = true
-	await _wait_physics_frames(1)
+	await physics_frame
 	player.sim_parry_pressed = false
-	await _wait_physics_frames(75)
-	_check(player.hp == player.max_hp, "Parry protects the player from the reflected shot")
-	_check(puzzle_switch.is_activated and door.is_open, "Reflected shot opens the door")
-
-	player.sim_move_dir = Vector2.RIGHT
-	await _wait_physics_frames(150)
-	_check(completion_label.visible, "Walking to the exit shows completion")
-
-	Input.action_press("Restart")
-	await _wait_physics_frames(2)
-	Input.action_release("Restart")
-	_check(not completion_label.visible, "Restart clears completion")
-	_check(not puzzle_switch.is_activated and not door.is_open, "Restart closes the door and resets the switch")
-	_check(is_equal_approx(player.global_position.x, room.spawn_point.global_position.x),
-			"Restart returns the player to spawn")
-	_check(emitter.is_firing() and get_nodes_in_group("projectiles").is_empty(),
-			"Restart clears projectiles and starts the emission cycle again")
-
-	room.queue_free()
-	await process_frame
-	print("projectile_puzzle_room_test: %s (%d failure(s))" % ["FAIL" if failures else "OK", failures])
-	quit(1 if failures else 0)
+	await _wait_physics_frames(50)
 
 
 func _wait_physics_frames(count: int) -> void:

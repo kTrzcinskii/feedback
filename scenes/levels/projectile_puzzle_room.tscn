@@ -7,10 +7,8 @@
 [ext_resource type="PackedScene" path="res://scenes/hazards/projectile_emitter.tscn" id="5_emitter"]
 [ext_resource type="PackedScene" path="res://scenes/fixtures/door.tscn" id="6_door"]
 [ext_resource type="PackedScene" path="res://scenes/fixtures/switch.tscn" id="7_switch"]
-[ext_resource type="Script" path="res://scripts/levels/projectile_puzzle_exit.gd" id="8_exit"]
-
-[sub_resource type="RectangleShape2D" id="ExitShape"]
-size = Vector2(72, 88)
+[ext_resource type="PackedScene" path="res://scenes/levels/level_exit.tscn" id="8_exit"]
+[ext_resource type="PackedScene" path="res://scenes/levels/emitter_test.tscn" id="9_destination"]
 
 [node name="ProjectilePuzzleRoom" type="Node2D"]
 script = ExtResource("1_level")
@@ -68,25 +66,14 @@ position = Vector2(160, 0)
 [node name="CharacterBody2D" parent="." instance=ExtResource("2_player")]
 position = Vector2(160, 0)
 
-[node name="Exit" type="Area2D" parent="." groups=["resettable"]]
-position = Vector2(820, -44)
-collision_layer = 0
-monitorable = false
-script = ExtResource("8_exit")
+[node name="ExitToEmitterLab" parent="." instance=ExtResource("8_exit")]
+position = Vector2(820, 0)
+destination_level = ExtResource("9_destination")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Exit"]
-shape = SubResource("ExitShape")
-
-[node name="ExitLabel" type="Label" parent="Exit"]
-offset_left = -13.0
-offset_top = -72.0
-text = "Exit"
-
-[node name="CompletionLabel" type="Label" parent="Exit"]
-visible = false
-offset_left = -84.0
-offset_top = -144.0
+[node name="ExitLabel" type="Label" parent="."]
+offset_left = 700.0
+offset_top = -187.0
+offset_right = 940.0
 theme_override_colors/font_color = Color(0.54, 0.9, 0.62, 1)
-text = "Puzzle complete!
-Press R to restart."
+text = "Portal to the projectile parry lab"
 horizontal_alignment = 1
