@@ -25,6 +25,8 @@ enum ParryState {
 @export var parry_active_duration: float = 0.20
 ## Cooldown duration in seconds after active window ends
 @export var parry_cooldown: float = 0.20
+## Seconds after the active parry ends during which a projectile hit can trigger the failure cue
+@export var parry_failure_cue_grace_duration: float = 0.4
 ## Hitbox range in Character Heights
 @export var parry_hitbox_range_ch: float = 1.0
 ## Angular coverage in degrees from the locked direction
@@ -70,6 +72,7 @@ var has_parry_momentum: bool = false
 var visual_motion: String = ""
 
 var _parry_requires_release: bool = false
+var _parry_failure_cue_grace_remaining: float = 0.0
 var _parry_succeeded_in_current_window: bool = false
 var _cooldown_reset_earned_in_current_window: bool = false
 var _surface_parried_in_current_window: bool = false
@@ -375,6 +378,8 @@ func _move_character_body_2D(delta: float) -> void:
 
 
 func _update_parry_cycle(delta: float, dir_input: Vector2, parry_pressed: bool) -> void:
+	_parry_failure_cue_grace_remaining = maxf(0.0, _parry_failure_cue_grace_remaining - delta)
+
 	# Advance active window / cooldown timers
 	if parry_state == ParryState.ACTIVE:
 		parry_timer -= delta
@@ -423,6 +428,7 @@ func _start_parry(dir_input: Vector2) -> void:
 
 func _end_active_parry_window(overflow: float=0.0) -> void:
 	var was_successful: bool = _parry_succeeded_in_current_window
+	_parry_failure_cue_grace_remaining = maxf(0.0, parry_failure_cue_grace_duration - overflow)
 	_set_parry_hitbox_enabled(false)
 	parry_window_ended.emit(was_successful)
 
@@ -661,7 +667,8 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 		if dist <= (hurtbox_radius + hit_radius):
 			if attack is ParryableProjectile:
 				attack.queue_free()
-				parry_failed.emit(attack)
+				if parry_state == ParryState.ACTIVE or _parry_failure_cue_grace_remaining > 0.0:
+					parry_failed.emit(attack)
 			take_damage(1, attack, false)
 			if is_dead:
 				return
@@ -774,6 +781,7 @@ func reset_player_state(spawn_global_position: Vector2) -> void:
 	facing_direction = 1
 	parry_state = ParryState.IDLE
 	parry_timer = 0.0
+	_parry_failure_cue_grace_remaining = 0.0
 	parry_direction = Vector2.RIGHT
 	has_parry_momentum = false
 	_parry_requires_release = false

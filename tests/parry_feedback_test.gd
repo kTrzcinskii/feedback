@@ -14,9 +14,10 @@ func _run() -> void:
 	var player := PLAYER.instantiate() as PlayerCharacter
 	player.use_simulated_input = true
 	player.gravity_ch = 0.0
+	var feedback := player.get_node("ParryFeedback") as ParryFeedback
+	feedback.use_voice_cues = false
 	root.add_child(player)
 	player.parry_failed.connect(_on_parry_failed)
-	var feedback := player.get_node("ParryFeedback")
 	var sector := feedback.get_node("ActiveSector") as Polygon2D
 	var burst := feedback.get_node("SuccessBurst") as AnimatedSprite2D
 	var success_sound := feedback.get_node("SuccessSound") as AudioStreamPlayer
@@ -24,12 +25,33 @@ func _run() -> void:
 
 	_launch_at_player(player)
 	await _tick()
-	_check(_misses == 1 and failure_sound.playing and not success_sound.playing,
-			"early hit resolves a failure cue at contact")
-	_check(player.hp == player.max_hp - 1 and not burst.visible, "early hit deals normal damage")
+	_check(_misses == 0 and not failure_sound.playing and not success_sound.playing,
+			"hit without a parry attempt plays no cue")
+	_check(player.hp == player.max_hp - 1 and not burst.visible, "hit deals normal damage")
+
+	player.reset_player_state(Vector2.ZERO)
+	_misses = 0
+	player.sim_parry_pressed = true
+	await _tick()
+	player.sim_parry_pressed = false
+	await create_timer(0.33, true, true).timeout
+	_check(not sector.visible and _misses == 0, "empty parry expires without a failure")
+	player.invulnerability_timer = 1.0
+	_launch_at_player(player)
+	await _tick()
+	_check(_misses == 1 and not burst.visible and failure_sound.playing,
+			"hit in the grace period plays the failure cue even during damage immunity")
+	_check(player.hp == player.max_hp, "failure feedback respects damage immunity")
+
+	await create_timer(0.33, true, true).timeout
+	_misses = 0
+	_launch_at_player(player)
+	await _tick()
+	_check(_misses == 0, "hit after the grace period plays no cue")
 
 	player.reset_player_state(Vector2.ZERO)
 	_check(not sector.visible and not failure_sound.playing, "reset clears feedback")
+	_misses = 0
 	player.sim_parry_pressed = true
 	await _tick()
 	_check(sector.visible and is_zero_approx(sector.rotation), "active parry shows the locked sector")
@@ -38,31 +60,27 @@ func _run() -> void:
 	await _tick()
 	_check(projectile.is_reflected and projectile.velocity.x > 0.0 and player.hp == player.max_hp,
 			"successful parry still reverses the shot and protects the player")
-	_check(_misses == 1 and burst.visible
+	_check(_misses == 0 and burst.visible
 			and success_sound.playing and success_sound.stream != failure_sound.stream,
 			"success shows its burst and plays a distinct sound immediately")
 	projectile.queue_free()
 
-	player.reset_player_state(Vector2.ZERO)
-	player.sim_parry_pressed = true
-	await _tick()
 	player.sim_parry_pressed = false
-	for tick in 20:
-		await physics_frame
-	_check(not sector.visible and _misses == 1, "empty parry expires without a failure")
-	player.invulnerability_timer = 1.0
+	await create_timer(0.25, true, true).timeout
+	player.reset_player_state(Vector2.ZERO)
+	_misses = 0
 	_launch_at_player(player)
 	await _tick()
-	_check(_misses == 2 and not burst.visible and failure_sound.playing,
-			"late hit resolves failure even during damage immunity")
-	_check(player.hp == player.max_hp, "failure feedback respects damage immunity")
+	_check(_misses == 0 and not failure_sound.playing and player.hp == player.max_hp - 1,
+			"hit after reset during the previous attempt's grace period plays no cue")
 
 	player.reset_player_state(Vector2.ZERO)
+	_misses = 0
 	player.sim_parry_pressed = true
 	projectile = _launch_at_player(player)
 	_launch_at_player(player, Vector2.LEFT)
 	await _tick()
-	_check(projectile.is_reflected and player.hp == player.max_hp - 1 and _misses == 3,
+	_check(projectile.is_reflected and player.hp == player.max_hp - 1 and _misses == 1,
 			"same tick: separate projectiles independently reflect and hit")
 	_check(burst.visible and success_sound.playing and failure_sound.playing,
 			"same tick: success and failure cues play together")
