@@ -30,6 +30,7 @@ func _run() -> void:
 	root.add_child(level)
 
 	var door_collision: CollisionShape2D = door.get_node("CollisionShape2D")
+	var gate_sprite: AnimatedSprite2D = door.get_node("AnimatedSprite2D")
 	_check(not door_collision.disabled, "door starts blocking")
 
 	var ordinary_shot := _fire_through_switch(level, false)
@@ -45,6 +46,7 @@ func _run() -> void:
 	_check(not is_instance_valid(reflected_shot), "first reflected shot is consumed")
 	_check(puzzle_switch.is_activated and door.is_open and door_collision.disabled,
 			"reflected shot activates switch and opens door")
+	_check(gate_sprite.is_playing(), "opening the gate plays its slide animation")
 
 	var next_shot := _fire_through_switch(level, true)
 	await physics_frame
@@ -56,6 +58,8 @@ func _run() -> void:
 	await process_frame
 	_check(not puzzle_switch.is_activated and not door.is_open and not door_collision.disabled,
 			"room restart resets switch and restores door collision")
+	_check(not gate_sprite.is_playing() and gate_sprite.frame == 0,
+			"restart restores the gate's closed pose")
 
 	_fire_through_switch(level, true)
 	await physics_frame

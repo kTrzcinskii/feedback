@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/env_door.gd" id="1"]
-[ext_resource type="SpriteFrames" path="res://assets/godot/env-door.tres" id="2"]
+[ext_resource type="SpriteFrames" path="res://assets/godot/env-sliding-gate.tres" id="2"]
 
 [sub_resource type="RectangleShape2D" id="DoorShape"]
 size = Vector2(36, 96)
@@ -14,6 +14,6 @@ shape = SubResource("DoorShape")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("2")
-animation = &"door"
+animation = &"sliding-gate"
 centered = false
 offset = Vector2(-48, -48)

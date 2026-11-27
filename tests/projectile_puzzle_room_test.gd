@@ -19,6 +19,15 @@ func _run() -> void:
 	var door: EnvDoor = room.get_node("Door")
 	var puzzle_switch: EnvSwitch = room.get_node("Switch")
 	var emitter: ProjectileEmitter = room.get_node("ProjectileEmitter")
+	var gate_sprite: AnimatedSprite2D = door.get_node("AnimatedSprite2D")
+	var portal: LevelExit = room.get_node("ExitToEmitterLab")
+	var portal_sprite: AnimatedSprite2D = portal.get_node("PortalSprite")
+	_check(gate_sprite.animation == &"sliding-gate"
+			and gate_sprite.sprite_frames.get_frame_count(&"sliding-gate") > 1,
+			"Gate uses the sideways-opening animation")
+	_check(portal_sprite.animation == &"portal" and portal_sprite.is_playing()
+			and not portal.get_node("Portal").visible,
+			"Exit plays the ornate portal animation in place of the default graphic")
 	player.use_simulated_input = true
 	emitter.stop_firing()
 

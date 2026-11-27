@@ -17,7 +17,7 @@ func open_door() -> void:
 
 	is_open = true
 	_collision.set_deferred("disabled", true)
-	_sprite.play(&"door")
+	_sprite.play()
 
 
 func reset_state() -> void:

@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/levels/level_exit.tscn" id="1_exit"]
+[ext_resource type="SpriteFrames" path="res://assets/godot/env-portal.tres" id="2_frames"]
+
+[node name="OrnateLevelExit" instance=ExtResource("1_exit")]
+
+[node name="Portal" parent="." index="1"]
+visible = false
+
+[node name="PortalSprite" type="AnimatedSprite2D" parent="." index="2"]
+position = Vector2(0, -48)
+sprite_frames = ExtResource("2_frames")
+animation = &"portal"
+autoplay = "portal"

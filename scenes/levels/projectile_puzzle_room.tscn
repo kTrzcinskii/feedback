@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/hazards/projectile_emitter.tscn" id="5_emitter"]
 [ext_resource type="PackedScene" path="res://scenes/fixtures/door.tscn" id="6_door"]
 [ext_resource type="PackedScene" path="res://scenes/fixtures/switch.tscn" id="7_switch"]
-[ext_resource type="PackedScene" path="res://scenes/levels/level_exit.tscn" id="8_exit"]
+[ext_resource type="PackedScene" path="res://scenes/levels/ornate_level_exit.tscn" id="8_exit"]
 [ext_resource type="PackedScene" path="res://scenes/levels/emitter_test.tscn" id="9_destination"]
 
 [node name="ProjectilePuzzleRoom" type="Node2D"]
