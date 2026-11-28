@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=8 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://hn7il50hldx0"]
 
-[ext_resource type="Texture2D" path="../sheets/parry-fx-burst.svg" id="1_sheet"]
+[ext_resource type="Texture2D" uid="uid://dvhhyx72wf1wp" path="res://assets/sheets/parry-fx-burst.svg" id="1_sheet"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1_sheet")
@@ -50,10 +50,10 @@ animations = [{
 "duration": 0.8,
 "texture": SubResource("AtlasTexture_4")
 }, {
-"duration": 1,
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_5")
 }],
-"loop": false,
+"loop": 0,
 "name": &"burst",
 "speed": 10.0
 }]

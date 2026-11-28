@@ -3,6 +3,7 @@ extends CharacterBody2D
 
 signal parry_started(direction: Vector2, active_duration: float)
 signal parry_succeeded(target: Object, category: StringName, direction: Vector2, resulting_velocity: Vector2)
+signal parry_failed(projectile: ParryableProjectile)
 signal parry_window_ended(was_successful: bool)
 signal parry_cooldown_ended()
 signal player_damaged(source: Object, remaining_hp: int)
@@ -24,6 +25,8 @@ enum ParryState {
 @export var parry_active_duration: float = 0.20
 ## Cooldown duration in seconds after active window ends
 @export var parry_cooldown: float = 0.20
+## Seconds after the active parry ends during which a projectile hit can trigger the failure cue
+@export var parry_failure_cue_grace_duration: float = 0.4
 ## Hitbox range in Character Heights
 @export var parry_hitbox_range_ch: float = 1.0
 ## Angular coverage in degrees from the locked direction
@@ -69,6 +72,7 @@ var has_parry_momentum: bool = false
 var visual_motion: String = ""
 
 var _parry_requires_release: bool = false
+var _parry_failure_cue_grace_remaining: float = 0.0
 var _parry_succeeded_in_current_window: bool = false
 var _cooldown_reset_earned_in_current_window: bool = false
 var _surface_parried_in_current_window: bool = false
@@ -91,6 +95,7 @@ var sim_parry_pressed: bool = false
 @onready var player_visual: Node2D = get_node_or_null("PlayerVisual") as Node2D
 @onready var animation_tree: PlayerAnimationTree = get_node_or_null("PlayerVisual/AnimationTree") as PlayerAnimationTree
 @onready var animated_sprite: PlayerAnimatedSprite = get_node_or_null("AnimatedSprite2D") as PlayerAnimatedSprite
+@onready var _parry_feedback: ParryFeedback = get_node_or_null("ParryFeedback") as ParryFeedback
 var _parry_hitbox: Area2D = null
 var _parry_polygon: CollisionPolygon2D = null
 
@@ -183,6 +188,9 @@ func _set_parry_hitbox_enabled(enabled: bool) -> void:
 		_parry_hitbox.set_deferred("monitoring", enabled)
 		_parry_hitbox.set_deferred("monitorable", enabled)
 		_parry_hitbox.rotation = parry_direction.angle()
+	if _parry_feedback != null:
+		_parry_feedback.position = _parry_hitbox.position
+		_parry_feedback.show_active_sector(enabled, _parry_polygon.polygon, _parry_hitbox.rotation)
 
 
 func get_parry_origin_global() -> Vector2:
@@ -370,6 +378,8 @@ func _move_character_body_2D(delta: float) -> void:
 
 
 func _update_parry_cycle(delta: float, dir_input: Vector2, parry_pressed: bool) -> void:
+	_parry_failure_cue_grace_remaining = maxf(0.0, _parry_failure_cue_grace_remaining - delta)
+
 	# Advance active window / cooldown timers
 	if parry_state == ParryState.ACTIVE:
 		parry_timer -= delta
@@ -418,6 +428,7 @@ func _start_parry(dir_input: Vector2) -> void:
 
 func _end_active_parry_window(overflow: float=0.0) -> void:
 	var was_successful: bool = _parry_succeeded_in_current_window
+	_parry_failure_cue_grace_remaining = maxf(0.0, parry_failure_cue_grace_duration - overflow)
 	_set_parry_hitbox_enabled(false)
 	parry_window_ended.emit(was_successful)
 
@@ -656,6 +667,8 @@ func _resolve_unparried_attacks_and_hazards() -> void:
 		if dist <= (hurtbox_radius + hit_radius):
 			if attack is ParryableProjectile:
 				attack.queue_free()
+				if parry_state == ParryState.ACTIVE or _parry_failure_cue_grace_remaining > 0.0:
+					parry_failed.emit(attack)
 			take_damage(1, attack, false)
 			if is_dead:
 				return
@@ -768,6 +781,7 @@ func reset_player_state(spawn_global_position: Vector2) -> void:
 	facing_direction = 1
 	parry_state = ParryState.IDLE
 	parry_timer = 0.0
+	_parry_failure_cue_grace_remaining = 0.0
 	parry_direction = Vector2.RIGHT
 	has_parry_momentum = false
 	_parry_requires_release = false
@@ -786,6 +800,8 @@ func reset_player_state(spawn_global_position: Vector2) -> void:
 	sim_jump_just_pressed = false
 	sim_parry_pressed = false
 	_set_parry_hitbox_enabled(false)
+	if _parry_feedback != null:
+		_parry_feedback.clear_outcomes()
 	interrupt_parry()
 	set_facing(false)
 	_set_locomotion_scale(1.0)
