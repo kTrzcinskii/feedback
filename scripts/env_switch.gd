@@ -6,6 +6,7 @@ extends Node2D
 
 var is_activated: bool = false
 
+@onready var hit_center: Marker2D = $HitCenter
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var _door: EnvDoor = get_node_or_null(linked_door) as EnvDoor
 

@@ -299,7 +299,7 @@ func _check_target_interactions() -> void:
 		var puzzle_switch := node as EnvSwitch
 		if puzzle_switch == null:
 			continue
-		var distance := _segment_distance_to_point(prev_global_position, global_position, puzzle_switch.global_position)
+		var distance := _segment_distance_to_point(prev_global_position, global_position, puzzle_switch.hit_center.global_position)
 		if distance <= collision_radius + puzzle_switch.hit_radius and puzzle_switch.on_hit_by_projectile(self):
 			queue_free()
 			return
