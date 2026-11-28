@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://dxfanomoo07k2"]
+
+[ext_resource type="Script" uid="uid://cb4u21dhutnsp" path="res://scripts/levels/test_level.gd" id="1_level"]
+[ext_resource type="PackedScene" uid="uid://bjrihl1iy3ey8" path="res://scenes/character.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/terrain/floor.tscn" id="3_floor"]
+[ext_resource type="PackedScene" uid="uid://eema2euvy553" path="res://scenes/terrain/wall.tscn" id="4_wall"]
+[ext_resource type="PackedScene" path="res://scenes/hazards/projectile_emitter.tscn" id="5_emitter"]
+[ext_resource type="PackedScene" path="res://scenes/fixtures/door.tscn" id="6_door"]
+[ext_resource type="PackedScene" path="res://scenes/fixtures/switch.tscn" id="7_switch"]
+[ext_resource type="PackedScene" path="res://scenes/levels/ornate_level_exit.tscn" id="8_exit"]
+[ext_resource type="PackedScene" uid="uid://diy2gjpnkk4dp" path="res://scenes/levels/emitter_test.tscn" id="9_destination"]
+
+[node name="ProjectilePuzzleRoom" type="Node2D" unique_id=623517290]
+script = ExtResource("1_level")
+room_subtitle = "PROJECTILE PUZZLE"
+
+[node name="Ground" parent="." unique_id=1342351276 instance=ExtResource("3_floor")]
+size = Vector2(960, 96)
+
+[node name="LeftWall" parent="." unique_id=1555536313 instance=ExtResource("4_wall")]
+position = Vector2(-20, -160)
+size = Vector2(40, 320)
+
+[node name="RightWall" parent="." unique_id=1987537638 instance=ExtResource("4_wall")]
+position = Vector2(980, -160)
+size = Vector2(40, 320)
+
+[node name="Ceiling" parent="." unique_id=1868608806 instance=ExtResource("4_wall")]
+position = Vector2(480, -340)
+size = Vector2(1040, 40)
+
+[node name="DoorHeader" parent="." unique_id=1291640695 instance=ExtResource("4_wall")]
+position = Vector2(644, -208)
+size = Vector2(40, 224)
+
+[node name="Door" parent="." unique_id=883885112 instance=ExtResource("6_door")]
+position = Vector2(640, 0)
+
+[node name="Switch" parent="." unique_id=1103789179 instance=ExtResource("7_switch")]
+position = Vector2(432, 0)
+linked_door = NodePath("../Door")
+
+[node name="ProjectileEmitter" parent="." unique_id=1412811032 instance=ExtResource("5_emitter")]
+position = Vector2(480, -32)
+initial_delay = 0.8
+attack_interval = 2.2
+projectile_speed = 280.0
+
+[node name="SpawnPoint" type="Marker2D" parent="." unique_id=740265246]
+position = Vector2(160, 0)
+
+[node name="CharacterBody2D" parent="." unique_id=55392714 instance=ExtResource("2_player")]
+position = Vector2(160, 0)
+
+[node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=362943666]
+position = Vector2(0, -32)
+
+[node name="ExitToEmitterLab" parent="." unique_id=222692127 instance=ExtResource("8_exit")]
+position = Vector2(816, 0)
+destination_level = ExtResource("9_destination")
