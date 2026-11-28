@@ -7,4 +7,4 @@ sprite_frames = ExtResource("1_frames")
 animation = &"hazard"
 autoplay = "hazard"
 centered = false
-offset = Vector2(-48, -48)
+offset = Vector2(-48, -96)

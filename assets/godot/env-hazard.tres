@@ -41,4 +41,4 @@ animations = [{
 "name": &"hazard",
 "speed": 10.0
 }]
-metadata/pipeline_anchor = Vector2(48, 48)
+metadata/pipeline_anchor = Vector2(48, 96)
